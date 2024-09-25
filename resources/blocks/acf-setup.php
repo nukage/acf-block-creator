@@ -1,6 +1,6 @@
 <?php
 
-$acf_key = $id;
+$acf_key = 'group_' . $id;
 $acf_fields = array(
     'key' => $acf_key,
 

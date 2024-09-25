@@ -10,3 +10,6 @@ Author URI: https://nukage.net
 
 require_once __DIR__ . '/resources/blocks/blocks.php'; // Blocks
 require_once __DIR__ . '/resources/functions.php'; // Functions
+require_once __DIR__ . '/resources/acf-populate.php'; // ACF Auto-populate fields with options from theme.json
+require_once __DIR__ . '/resources/style-builder.php'; // ACF Style Builder to create Tailwind classes
+require_once __DIR__ . '/resources/acf-fields.php'; // ACF field loader, but using php to load it means we can check uer perms first

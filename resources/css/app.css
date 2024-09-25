@@ -1,0 +1,7 @@
+/* @import "tailwindcss/base"; */
+/* @import "tailwindcss/components"; */
+@import "tailwindcss/utilities";
+
+.test-classes {
+	@apply justify-evenly flex-wrap flex-nowrap justify-center;
+}
