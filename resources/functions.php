@@ -124,12 +124,12 @@ function opening_tag(string $elem = 'div', array $attrs = array(), bool $self_cl
  *
  * @return string The generated <img> tag
  */
-function  nkg_create_image_tag(string $image_field = 'image', string $image_size = 'full', string $image_class = '')
+function  nkg_create_image_tag(array $image, string $image_size = 'full', string $image_class = '')
 {
-    if (!$image_field) {
+    if (!$image) {
         return 'Please select an image.';
     }
-    $image = get_field($image_field);
+
     $image_id = $image && $image['id'] ? $image['id'] : '';
     $src = wp_get_attachment_image_url($image_id, $image_size, false);
     $opening_tag_attrs = $image_id ?  array('src' => $src, 'class' => $image_class) : array();
@@ -163,11 +163,19 @@ function generateLoremIpsum($minLength = 50, $maxLength = 100)
 
 function add_entry_content_class_for_dev_mode($classes)
 {
+    $classList = '';
+
     if (!get_field('nkg_render_mode', 'option')) {
-        $classes[] = 'dev-mode'; // Replace 'your-custom-class' with your desired class name
+        $classList .= 'nkg-dev-mode'; // Replace 'your-custom-class' with your desired class namespace
+
     } else {
-        $classes[] = 'render-mode';
+        $classes[] = 'nkg-render-mode';
+        if (get_field('css_mode', 'option')) {
+            $classList .= 'nkg-css-mode';
+        }
     }
+
+    $classes[] = $classList;
     return $classes;
 }
 

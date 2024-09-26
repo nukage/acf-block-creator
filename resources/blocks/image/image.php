@@ -57,16 +57,27 @@ $blockClass = isset($block['className']) ? $block['className'] : '';
 $classes = '';
 $styles = '';
 
+// ADD TYPICAL BLOCK CLASSES TO CLASS LIST
+
+$classes .= $acf_name ?  $acf_name . ' ' : '';
+$classes .= ' ' . $align_class;
+$classes .= ' ' . $blockClass;
+
 // INIT STYLE BUILDER
 
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 $styles .= $style_builder['style'] ?? '';
-$classes .=   $style_builder['classes'] ?? '';
+$theme_classes =   $style_builder['classes'] ?? '';
 
-// ADD TYPICAL BLOCK CLASSES TO CLASS LIST
 
-$classes .= ' ' . $align_class;
-$classes .= ' ' . $blockClass;
+// CREATE HIDDEN TAG
+
+$hidden_tag_attrs = array('style' => 'display:none;', 'class' => 'nkg-hidden');
+$hidden_tag_attrs['data-acf-mode'] = $acf_mode;
+$hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
+$hidden_tag_attrs['data-name'] = $acf_name;
+$hidden_tag_attrs['data-classes'] = $theme_classes;
+echo opening_tag('div', $hidden_tag_attrs) . '</div>';
 
 // ADD BLOCK-SPECIFIC FIELDS
 
@@ -76,11 +87,9 @@ $src = wp_get_attachment_image_url($imageId, $size, false);
 
 $opening_tag_attrs = array('src' => $src, 'class' => $classes);
 if ($dev) {
-    $opening_tag_attrs['data-acf-mode'] = $acf_mode;
-    $opening_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
     $opening_tag_attrs['style'] = $styles;
 } else { ?>
-    <!--<php  echo nkg_create_image_tag('<?= $acf_name ?>', '<?= $size ?>', '<?= trim($classes) ?>'); ?>-->
+    <!--<php  echo nkg_create_image_tag(get_field('<?= $acf_name ?>', '<?= $size ?>'), '<?= trim($classes . ' ' . $theme_classes) ?>'); ?>-->
 <?php }
 
 if ($src && $dev) {

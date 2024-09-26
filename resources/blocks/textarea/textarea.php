@@ -1,6 +1,7 @@
 <?php
 
 $dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (FALSE/TRUE) -  
+$css_mode =  get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
 
 
 $blockName = str_replace('acf/', '', $block['name']);
@@ -47,29 +48,45 @@ $blockClass = '';
 $blockClass = isset($block['className']) ? $block['className'] : '';
 
 
+// INIT ATTR VARS
+
 $classes = '';
 $styles = '';
 
-$style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
+// ADD TYPICAL BLOCK CLASSES TO CLASS LIST
 
-$styles .= $style_builder['style'] ?? '';
-
-$classes .=   $style_builder['classes'] ?? '';
-
+$classes .= $acf_name ?  $acf_name . ' ' : '';
 $classes .= ' ' . $align_class;
-
 $classes .= ' ' . $blockClass;
+
+// INIT STYLE BUILDER
+
+$style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
+$styles .= $style_builder['style'] ?? '';
+$theme_classes =   $style_builder['classes'] ?? '';
 
 
 
 
 $preview_text = get_field('preview_text');
 
+// CREATE HIDDEN TAG
+
+$hidden_tag_attrs = array('style' => 'display:none;', 'class' => 'nkg-hidden');
+$hidden_tag_attrs['data-acf-mode'] = $acf_mode;
+$hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
+$hidden_tag_attrs['data-name'] = $acf_name;
+$hidden_tag_attrs['data-classes'] = isset($theme_classes) && $theme_classes ? $theme_classes : '';
+
+// Add Hidden Tag to DOM
+echo opening_tag('div', $hidden_tag_attrs) . '</div>';
+
 if (get_field('element')) :
-    $opening_tag_attrs = array('class' => $classes);
+
+
+    $opening_tag_attrs = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
     if ($dev) {
-        $opening_tag_attrs['data-acf-mode'] = $acf_mode;
-        $opening_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
+        // Adding styles for Dev mode only
         $opening_tag_attrs['style'] = $styles;
         echo opening_tag(get_field('element'), $opening_tag_attrs);
     }

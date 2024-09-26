@@ -2,6 +2,9 @@
 
 // Get plugin options
 $dev = !get_field('nkg_render_mode', 'option');
+$css_mode =  get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
+
+
 
 
 $name = get_field('name');
@@ -136,7 +139,7 @@ $classes = ' ';
 
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 
-$classes .=   $style_builder['classes'] ?? '';
+$theme_classes = $style_builder &&  $style_builder['classes'] ?  $style_builder['classes'] . ' ' : '';
 
 
 // INIT ATTR VARS
@@ -144,28 +147,30 @@ $classes .=   $style_builder['classes'] ?? '';
 $innerClasses = '';
 $innerStyles = '';
 
+// $innerClasses .= $acf_name ?   'block-name__' . $acf_name . ' ' : '';
+
 
 
 // ADD TYPICAL BLOCK CLASSES TO CLASS LIST
 
 $innerClasses .= ' ' . $align_class;
-$innerClasses .= ' ' . $blockClass;
+// $innerClasses .= ' ' . $blockClass;
 
 
-$repeater = get_field('acf_mode') == 'repeater' && get_field('repeater_preview') && !is_admin() ? get_field('repeater_preview') : 1;
+$repeater = get_field('acf_mode') == 'repeater' && get_field('repeater_preview') && !is_admin()  ? get_field('repeater_preview') : 1;
 
 
 // Set up the class list
 
 $innerClasses .= $acf_name ?  $acf_name . ' ' : '';
 // $innerClasses .= 'blockid-' . $id  . ' ';
-$innerClasses .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
-$innerClasses .= get_field('container_type') ?  get_field('container_type') . ' ' : '';
-$innerClasses .= get_field('flex_direction') ?  get_field('flex_direction') . ' ' : '';
-$innerClasses .= get_field('flex_justification') ?  get_field('flex_justification') . ' ' : '';
-$innerClasses .= get_field('flex_wrap') ?  get_field('flex_wrap') . ' ' : '';
+$theme_classes .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
+$theme_classes .= get_field('container_type') && get_field('container_type') !== 'default' ?  get_field('container_type') . ' ' : '';
+$theme_classes .= get_field('flex_direction') ?  get_field('flex_direction') . ' ' : '';
+$theme_classes .= get_field('flex_justification') ?  get_field('flex_justification') . ' ' : '';
+$theme_classes .= get_field('flex_wrap') ?  get_field('flex_wrap') . ' ' : '';
 
-$innerClasses .= get_field('spacing_options') ?  'gap-' . get_field('spacing_options') . ' ' : '';
+$theme_classes .= get_field('spacing_options') ?  'gap-' . get_field('spacing_options') . ' ' : '';
 
 // Set up Grid
 
@@ -176,7 +181,7 @@ if (get_field('container_type') == 'grid') {
     if (get_field('grid_mode') == 'Manual' && get_field('grid_columns')) {
         $gridClasses .= "grid-cols-" . get_field('grid_columns') . " ";
     } else if (get_field('grid_mode') == 'Auto' && get_field('grid_column_width')) {
-        $gridClasses .= "grid-cols-[repeat(auto-fill,minmax(min(" . get_field('grid_column_width') . ",100%),1fr] ";
+        $gridClasses .= "grid-cols-[repeat(auto-fill,minmax(min(" . get_field('grid_column_width') . ",100%),1fr))] ";
         $gridStyles .= "grid-template-columns: repeat(auto-fill,  minmax(min(" . get_field('grid_column_width') . ", 100%), 1fr));";
     } else if (get_field('grid_mode') == 'Custom' && get_field('grid_template_columns')) {
         $gridClasses .= "grid-cols-[" . str_replace(' ', '', get_field('grid_template_columns')) . "] ";
@@ -184,7 +189,7 @@ if (get_field('container_type') == 'grid') {
     }
 }
 // Add them to the tag
-$innerClasses .= $gridClasses;
+$theme_classes .= $gridClasses;
 $innerStyles .= $gridStyles;
 
 // INIT STYLE BUILDER
@@ -193,34 +198,68 @@ $style_builder = get_field('style_builder') ? style_builder(get_field('style_bui
 $innerStyles .= $style_builder['style'] ?? '';
 $innerClasses .=   $style_builder['classes'] ?? '';
 
+$innerClasses .= $repeater > 1 && $dev ? ' acf-repeater-clone' : '';
+
 
 // Build the opening tag
 
 $openingTag = '<div class="nkg-group-hidden" id="' . $id . '" ';
 $openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
+$openingTag .= $acf_name ? 'data-name="' . trim($acf_name) . '"' : '';
 
 
 
 $openingTag .= $acf_mode !== 'none' &&  $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
+$openingTag .= isset($theme_classes) && $theme_classes ? 'data-classes="' . trim($theme_classes) . '" ' : '';
 $openingTag .= isset($block_json) && $block_json ? " data-block='" . json_encode($block_json) . "'" : '';
-$openingTag .= 'data-style="' . trim($innerStyles) . '" ';
+$openingTag .= $dev ? 'data-style="' . trim($innerStyles) . '" ' : '';
 $openingTag .= 'style="display:none;">';
 
-// echo '<pre>';
+// $innerClasses = !$dev && $css_mode && $acf_name ? $acf_name : $innerClasses;
+
+if (!$dev && $css_mode && $acf_name) {
+    // If its render mode, and CSS mode, just use the name as the class
+    $innerClasses = $acf_name;
+}
+
+if (!$dev && !$css_mode) {
+    // If its not dev mode and not css extract mode, add the theme classes to the class list
+    $innerClasses .= ' ' . $theme_classes;
+}
+if ($dev) {
+    // If it is dev mode, add the theme classes in. 
+    $innerClasses .= ' ' . $theme_classes;
+}
+
+
+
+// echo !$dev && $css_mode && $acf_name ? '$acf_name' : '$innerClasses';
+// echo $innerClasses;
+
 // var_dump($innerClasses);
 // echo '</pre>';
 
+if (!$dev && $acf_mode == 'parent') : ?>
 
-echo $dev ? $openingTag . '</div>' : '' ?>
-<?php if ($repeater > 1) : ?>
-    <!-- <php // Repeater Start
-$nameforId= get_field('<?php echo $nameforId; ?>'); 
-for ($i = 0; $i < $nameforId; $i++) {  ?>-->
+    <h4>Block: <?php echo $acf_name; ?>.php</h4>
+    <hr>
+    <pre data-name="<?php echo $acf_name; ?>">
+        </pre>
+<?php endif;
+
+
+
+echo $openingTag . '</div>' ?>
+<?php if ($acf_mode == 'repeater'  && !$dev) : ?>
+    <!--<php if ( have_rows('<?php echo $acf_name; ?>') ) : while( have_rows('<?php echo $acf_name; ?>') ) : the_row(); ?>-->
+    <?php $repeater = 1; // If not dev mode, just one instance of repeater HTML 
+    ?>
 <?php endif; ?>
 <?php for ($i = 0; $i < $repeater; $i++) { ?>
-    <?php echo '<InnerBlocks class="' . trim($innerClasses) . '"  />'; ?>
-    <?php if ($repeater > 1 && $i == 0) : ?>
-        <!-- <php } // Repeater End ?>-->
-    <?php endif; ?>
 
-<?php } ?>
+    <?php
+    echo '<InnerBlocks class="' . trim($innerClasses) . '"  />'; ?>
+    <?php if ($acf_mode == 'repeater'  && !$dev) : ?>
+        <!-- <php  endwhile; endif; ?>-->
+    <?php endif; ?>
+<?php }
