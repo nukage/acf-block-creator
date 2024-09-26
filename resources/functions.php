@@ -2,7 +2,7 @@
 
 
 
-// $css =  plugin_dir_url(__FILE__) . '/../../css/app.css';
+$render_mode_css =  plugin_dir_url(__FILE__) . '/../../css/render-mode.css';
 
 // function gutenberg_css($css)
 // {
@@ -11,19 +11,20 @@
 // }
 
 
-// function enqueue_css($css)
-// {
-//     wp_register_style('google-fonts', $css, array(), null, 'all');
-//     wp_enqueue_style('google-fonts');
-// }
+
+function enqueue_css($css, $cssname)
+{
+    wp_register_style($cssname, $css, array(), null, 'all');
+    wp_enqueue_style($cssname);
+}
 
 // add_action('enqueue_block_editor_assets', function () use ($css) {
 //     gutenberg_css($css);
 // });
 
-// add_action('wp_enqueue_scripts', function () use ($css) {
-//     enqueue_css($css);
-// });
+add_action('wp_enqueue_scripts', function () use ($render_mode_css) {
+    enqueue_css($render_mode_css, 'render-mode');
+});
 
 
 
@@ -109,7 +110,33 @@ function opening_tag(string $elem = 'div', array $attrs = array(), bool $self_cl
     }
     $tag .= $self_closing ? ' />' : '>';
     return $tag;
-}
+};
+
+
+
+
+/**
+ * Generates an <img> tag with the image from the given ACF image field.
+ *
+ * @param string $image_field The name of the ACF image field to use (default: 'image')
+ * @param string $image_size The size of the image to fetch (default: 'full')
+ * @param string $image_class The class attribute to add to the <img> tag (default: '')
+ *
+ * @return string The generated <img> tag
+ */
+function  nkg_create_image_tag(string $image_field = 'image', string $image_size = 'full', string $image_class = '')
+{
+    if (!$image_field) {
+        return 'Please select an image.';
+    }
+    $image = get_field($image_field);
+    $image_id = $image && $image['id'] ? $image['id'] : '';
+    $src = wp_get_attachment_image_url($image_id, $image_size, false);
+    $opening_tag_attrs = $image_id ?  array('src' => $src, 'class' => $image_class) : array();
+    return opening_tag('img', $opening_tag_attrs, true);
+};
+
+
 
 
 
@@ -131,30 +158,22 @@ function generateLoremIpsum($minLength = 50, $maxLength = 100)
 }
 
 
-function my_get_theme_json()
+
+
+
+function add_entry_content_class_for_dev_mode($classes)
+{
+    if (!get_field('nkg_render_mode', 'option')) {
+        $classes[] = 'dev-mode'; // Replace 'your-custom-class' with your desired class name
+    } else {
+        $classes[] = 'render-mode';
+    }
+    return $classes;
+}
+
+function add_entry_content_class_for_dev_mode_filter()
 {
 
-    // Fetch the global theme.json settings
-    $theme_settings = wp_get_global_settings();
-    // echo '<pre>';
-    // var_dump(get_intermediate_image_sizes());
-    // var_dump($theme_settings['custom']['fontWeight']);
-    // echo '</pre>';
-    // Check if the spacing settings exist
-    if (isset($theme_settings['spacing']['spacingSizes']['theme'])) {
-        $spacing_options = $theme_settings['spacing']['spacingSizes']['theme'];
-    } else {
-        $spacing_options = array(); // Fallback if no spacing options are found
-    }
-
-    // Output the spacing options in a select box
-    if (! empty($spacing_options)) {
-        echo '<select name="spacing-options">';
-        foreach ($spacing_options as $spacing) {
-            echo '<option value="' . esc_attr($spacing['slug']) . '">' . esc_html($spacing['name']) . '</option>';
-        }
-        echo '</select>';
-    } else {
-        echo 'No spacing options found.';
-    }
+    add_filter('body_class', 'add_entry_content_class_for_dev_mode');
 }
+add_action('acf/init', 'add_entry_content_class_for_dev_mode_filter');

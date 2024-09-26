@@ -1,9 +1,8 @@
 <?php
 
+$dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (TRUE/FALSE)
 
-// $name = get_field('name');
-// $name = str_replace(' ', '', $name);
-// $name = strtolower($name);
+
 
 // Put all of the above in a function..
 
@@ -17,7 +16,7 @@ $acf_mode = get_field('acf_mode');
 $acf_id = get_field('acf_id');
 $acf_instructions = get_field('acf_instructions');
 $acf_title = get_field('acf_title');
-
+$acf_fields = array();
 
 if (get_field('acf_mode') == 'child') {
     $acf_fields =  array(
@@ -75,9 +74,17 @@ $size = get_field('thumbnail_options') ? get_field('thumbnail_options') : 'full'
 $imageId = get_field('image') && get_field('image')['id'] ? get_field('image')['id'] : '';
 $src = wp_get_attachment_image_url($imageId, $size, false);
 
+$opening_tag_attrs = array('src' => $src, 'class' => $classes);
+if ($dev) {
+    $opening_tag_attrs['data-acf-mode'] = $acf_mode;
+    $opening_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
+    $opening_tag_attrs['style'] = $styles;
+} else { ?>
+    <!--<php  echo nkg_create_image_tag('<?= $acf_name ?>', '<?= $size ?>', '<?= trim($classes) ?>'); ?>-->
+<?php }
 
-if ($src) {
-    echo opening_tag('img', array('src' => $src, 'class' => $classes, 'style' => $styles, 'data-acf-mode' => $acf_mode, 'data-acf' => htmlspecialchars(json_encode($acf_fields))), true);
-} else {
+if ($src && $dev) {
+    echo opening_tag('img', $opening_tag_attrs, true);
+} elseif ($dev) {
     echo 'Please add an image.';
 }

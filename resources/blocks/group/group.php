@@ -1,5 +1,8 @@
 <?php
 
+// Get plugin options
+$dev = !get_field('nkg_render_mode', 'option');
+
 
 $name = get_field('name');
 $nameforId = strtolower(str_replace(' ', '-', $name));
@@ -14,20 +17,47 @@ $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id
 // This ID will only be the same if the block's settings are identical to another block. This would be a great way to de-dupe ACF fields if you had a repeater block for instance.  
 
 
+
+
+
 // ACF FIELDS SETUP
-$acf_name = get_field('acf_name');
-$acf_mode = get_field('acf_mode');
-$acf_id = get_field('acf_id');
-$acf_description = get_field('acf_description');
-$acf_title = get_field('acf_title');
+$acf_name = get_field('acf_name'); // name-of-block
+$acf_mode = get_field('acf_mode'); // parent/child
+$acf_id = get_field('acf_id'); // group_15315142534534
+$acf_description = get_field('acf_description'); // Description of block
+$acf_title = get_field('acf_title'); // Title of Block
+$acf_category = get_field('acf_category') ?  get_field('acf_category') : 'nkg-blocks'; // get_field('acf_category'); Need to add this as option
+$acf_single_title = get_field('acf_single_title')  ? get_field('acf_single_title') : 'Item';
+$acf_repeater_layout = get_field('acf_repeater_layout') ? get_field('acf_repeater_layout') : 'block';
+
+
 
 if ($acf_mode == 'parent') {
+
+    $message =   array(
+        'key' => 'field_message_' . $acf_id,
+        'label' => $acf_title,
+        'name' => 'message_' . $acf_name,
+        'aria-label' => '',
+        'type' => 'message',
+        'instructions' => '',
+        'required' => 0,
+        'conditional_logic' => 0,
+        'wrapper' => array(
+            'width' => '',
+            'class' => '',
+            'id' => '',
+        ),
+        'message' => $acf_description,
+        'new_lines' => 'wpautop',
+        'esc_html' => 0,
+    );
 
 
     $acf_fields = array(
         'key' =>  'group_' . $acf_id,
         'title' => $acf_title,
-        'fields' => array(),
+        'fields' => array($message),
         'location' => array(
             array(
                 array(
@@ -46,6 +76,49 @@ if ($acf_mode == 'parent') {
         'active' => true,
         'description' => $acf_description,
         'show_in_rest' => 0,
+
+
+
+    );
+
+    $block_json = array(
+        'name' => 'acf/' . $acf_name,
+        'title' => $acf_title,
+        'description' => $acf_description,
+        'category' => $acf_category,
+        'acf' => array(
+            'mode' => 'preview',
+            'renderTemplate' => $acf_name . '.php',
+        ),
+        "supports" => array(
+            "align" => true,
+            "anchor" => true,
+        )
+    );
+} else if ($acf_mode == 'repeater') {
+
+    $acf_fields =   array(
+        'key' => 'field_' . $acf_id,
+        'label' => $acf_title,
+        'name' => $acf_name,
+        'aria-label' => '',
+        'type' => 'repeater',
+        'instructions' => $acf_description,
+        'required' => 0,
+        'conditional_logic' => 0,
+        'wrapper' => array(
+            'width' => '',
+            'class' => '',
+            'id' => '',
+        ),
+        'layout' => $acf_repeater_layout,
+        'pagination' => 0,
+        'min' => 0,
+        'max' => 0,
+        'collapsed' => '',
+        'button_label' => 'Add ' . $acf_single_title,
+        'rows_per_page' => 20,
+        'sub_fields' => array(),
     );
 }
 
@@ -84,8 +157,8 @@ $repeater = get_field('acf_mode') == 'repeater' && get_field('repeater_preview')
 
 // Set up the class list
 
-$innerClasses .= $nameforId ?  'blockname-' . $nameforId . ' ' : '';
-$innerClasses .= 'blockid-' . $id  . ' ';
+$innerClasses .= $acf_name ?  $acf_name . ' ' : '';
+// $innerClasses .= 'blockid-' . $id  . ' ';
 $innerClasses .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
 $innerClasses .= get_field('container_type') ?  get_field('container_type') . ' ' : '';
 $innerClasses .= get_field('flex_direction') ?  get_field('flex_direction') . ' ' : '';
@@ -128,7 +201,8 @@ $openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
 
 
 
-$openingTag .= $acf_mode == 'parent' &&  $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
+$openingTag .= $acf_mode !== 'none' &&  $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
+$openingTag .= isset($block_json) && $block_json ? " data-block='" . json_encode($block_json) . "'" : '';
 $openingTag .= 'data-style="' . trim($innerStyles) . '" ';
 $openingTag .= 'style="display:none;">';
 
@@ -137,7 +211,7 @@ $openingTag .= 'style="display:none;">';
 // echo '</pre>';
 
 
-echo $openingTag . '</div>' ?>
+echo $dev ? $openingTag . '</div>' : '' ?>
 <?php if ($repeater > 1) : ?>
     <!-- <php // Repeater Start
 $nameforId= get_field('<?php echo $nameforId; ?>'); 

@@ -39,13 +39,13 @@ function style_builder($style_blocks)
                 }
                 if (in_array('x',  $spacingSides) && in_array('y',  $spacingSides)) {
                     $spacingSides = array_diff($spacingSides, ['x', 'y']);
-                    $spacingSides[] = '';
+                    $spacingSides[] = 'all';
                 }
                 if ($spacingSides == null) {
-                    $spacingSides[] = '';
+                    $spacingSides[] = 'all';
                 }
             } else {
-                $spacingSides = [''];
+                $spacingSides = ['all'];
             }
 
             $spacingClass = array();
@@ -67,29 +67,34 @@ function style_builder($style_blocks)
                 } else {
                     return;
                 }
-            } else if ($style_block['spacing_options']) {
+            } else if (isset($style_block['spacing_options'])) {
                 $spacingClass['size'] =  $style_block['spacing_options'];
                 $spacingClass['custom'] = false;
             }
 
 
 
-            if ($spacingClass['size'] && $spacingClass['type'] && $spacingSides[0]) {
-            }
+
 
             $classNames = '';
             $styles = '';
             foreach ($spacingSides as $spacingSide) {
-                $classNames .= $spacingClass['type'] .  $spacingSide . '-';
-                $classNames .= $spacingClass['custom'] ? '[' : '';
-                $classNames .=  $spacingClass['size'];
-                $classNames .= $spacingClass['custom'] ? ']' : '';
+
+                $classNames .= $spacingClass['type'];
+                if ($spacingSide === 'all') {
+                    $classNames .= '-';
+                } else {
+                    $classNames .= $spacingSide . '-';
+                }
+                $classNames .= isset($spacingClass['custom'])  && $spacingClass['custom']  ? '[' : '';
+                $classNames .=  isset($spacingClass['size'])  ? $spacingClass['size'] : '';
+                $classNames .= isset($spacingClass['custom'])  && $spacingClass['custom'] ? ']' : '';
                 $classNames .= ' ';
             }
 
 
 
-            if ($spacingClass['custom']) {
+            if (isset($spacingClass['custom']) && $spacingClass['custom']) {
                 $map = array(
                     't' => 'top',
                     'b' => 'bottom',

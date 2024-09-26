@@ -1,0 +1,4 @@
+.render-mode .entry-content > * {
+	border: 4px dashed slateblue;
+	min-height: 100px;
+}

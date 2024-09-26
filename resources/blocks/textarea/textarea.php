@@ -1,11 +1,7 @@
 <?php
 
+$dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (FALSE/TRUE) -  
 
-// $name = get_field('name');
-// $name = str_replace(' ', '', $name);
-// $name = strtolower($name);
-
-// Put all of the above in a function..
 
 $blockName = str_replace('acf/', '', $block['name']);
 $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id'];
@@ -45,6 +41,7 @@ if (get_field('acf_mode') == 'child') {
     );
 }
 
+
 $align_class = $block['align'] ? 'align' . $block['align'] : '';
 $blockClass = '';
 $blockClass = isset($block['className']) ? $block['className'] : '';
@@ -69,29 +66,31 @@ $classes .= ' ' . $blockClass;
 $preview_text = get_field('preview_text');
 
 if (get_field('element')) :
-
-    // $element = '<' . get_field('element');
-    // $element .= ' class="';
-    // $element .= $classes;
-    // $element .= '" data-acf-mode="' . $acf_mode . '"';
-    // $element .= ' data-acf="' . htmlspecialchars(json_encode($acf_fields)) . '"';
-    // $element .= '>';
-
-    echo opening_tag(get_field('element'), array('class' => $classes, 'style' => $styles, 'data-acf-mode' => $acf_mode, 'data-json' => json_encode($acf_fields),   'data-acf' => json_encode($acf_fields)));
+    $opening_tag_attrs = array('class' => $classes);
+    if ($dev) {
+        $opening_tag_attrs['data-acf-mode'] = $acf_mode;
+        $opening_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
+        $opening_tag_attrs['style'] = $styles;
+        echo opening_tag(get_field('element'), $opening_tag_attrs);
+    }
 endif;
 ?>
 
 
 <?php echo $element ?? '';
-$text = get_field('generate_random_text') && get_field('text_length') ? generateLoremIpsum(get_field('text_length'), get_field('text_length')) : get_field('preview_text');
+if ($dev) {
+    echo  get_field('generate_random_text') && get_field('text_length') ? generateLoremIpsum(get_field('text_length'), get_field('text_length')) : get_field('preview_text');
+} else { ?>
+
+    <!--<php  echo get_field('<?= $acf_name ?>') ? '<?= opening_tag(get_field('element'), $opening_tag_attrs) ?>' . get_field('<?= $acf_name ?>') . '</<?= get_field('element') ?>>' : ''; ?>-->
+
+<?php }
 
 
 ?>
 
 
 
-<?php echo $text; ?>
 
 
-</<?php echo get_field('element'); ?>>
-<!-- </div> -->
+</<?php echo $dev ? get_field('element') : ''; ?>>
