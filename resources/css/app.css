@@ -2,6 +2,21 @@
 /* @import "tailwindcss/components"; */
 @import "tailwindcss/utilities";
 
-.test-classes {
+/* .test-classes {
 	@apply justify-evenly flex-wrap flex-nowrap justify-center;
+} */
+
+/* Styles to get some level of parity between editor and site. Don't know if we need these anymore. We'll see. */
+
+img {
+	height: auto;
+	max-width: 100%;
+	/* object-fit: cover; */
+}
+.wp-block-acf-nkg-group img.alignright:not(.wp-block-button) {
+	margin-left: auto;
+}
+
+.wp-block-acf-nkg-group .block-editor-block-list__layout {
+	height: 100%;
 }

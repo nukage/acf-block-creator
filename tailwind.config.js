@@ -45,6 +45,9 @@ module.exports = {
 			pattern: /^grid-cols-\d+$/i,
 		},
 		{
+			pattern: /^gap-\d+$/i,
+		},
+		{
 			pattern: /^(w|min-w|max-w)-[a-z0-9\/-]+$/i,
 		  }
 	  ],
@@ -121,7 +124,7 @@ module.exports = {
         fontFamily: tailthemer.fontFamMapper(tailthemer.theme('settings.typography.fontFamilies', theme)),
     },
 	plugins: [
-		tailthemer.tailwind,
+		// tailthemer.tailwind,
         require("@tailwindcss/forms"),
 	],
 };

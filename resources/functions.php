@@ -2,13 +2,9 @@
 
 
 
+
 $render_mode_css =  plugin_dir_url(__FILE__) . '/../../css/render-mode.css';
-
-// function gutenberg_css($css)
-// {
-
-//     wp_enqueue_style('editor-font-css', $css, []);
-// }
+$tailwind_css =  plugin_dir_url(__FILE__) . '/../../css/app.css';
 
 
 
@@ -18,12 +14,16 @@ function enqueue_css($css, $cssname)
     wp_enqueue_style($cssname);
 }
 
-// add_action('enqueue_block_editor_assets', function () use ($css) {
-//     gutenberg_css($css);
-// });
+add_action('wp_enqueue_scripts', function () use ($render_mode_css, $tailwind_css) {
+    if (get_field('nkg_render_mode', 'option')) {
+        enqueue_css($render_mode_css, 'render-mode');
+    }
+    enqueue_css($tailwind_css, 'tailwind');
+});
 
-add_action('wp_enqueue_scripts', function () use ($render_mode_css) {
-    enqueue_css($render_mode_css, 'render-mode');
+
+add_action('after_setup_theme',  function () use ($tailwind_css) {
+    add_editor_style($tailwind_css);
 });
 
 
@@ -50,20 +50,6 @@ function nkg_dequeue_scripts()
 }
 add_action('wp_enqueue_scripts', 'nkg_dequeue_scripts');
 
-
-
-// function nkg_block_editor_script()
-// {
-//     // Register the block editor script.
-//     wp_register_script('nkg-editor-script', plugins_url('/js/block-editor.js', __FILE__), ['wp-blocks', 'wp-edit-post']);
-//     // register block editor script.
-//     register_block_type('nkg/editor-script', [
-//         'editor_script' => 'nkg-editor-script',
-//     ]);
-// }
-// add_action('enqueue_block_editor_assets', 'nkg_block_editor_script');
-
-
 function nkg_block_editor_script()
 {
     wp_enqueue_script('nkg-editor-script', plugins_url('/js/block-editor.js', __FILE__));
@@ -72,34 +58,6 @@ add_action('enqueue_block_editor_assets', 'nkg_block_editor_script');
 
 
 
-
-
-
-// function my_plugin_enqueue_editor_styles()
-// {
-//     wp_enqueue_block_editor_asset('my-plugin/editor-styles', plugin_dir_url(__FILE__) . 'css/app.css');
-// }
-// add_action('enqueue_block_editor_assets', 'my_plugin_enqueue_editor_styles');
-
-// ================== STYLE BUILDER ==================
-
-// $style_builder = get_field('style_builder');
-// echo '<pre>';
-// var_dump($style_builder);
-// echo '</pre>';
-
-// $builder_classes = '';
-// $builder_style = '';
-
-// foreach ($style_builder as $style_block) {
-
-//     if ($style_block['acf_fc_layout'] == 'class_list') {
-
-//         $builder_classes .= ' ' . $style_block['class_list'];
-//     }
-// }
-
-// return array(trim($builder_classes), trim($builder_style));
 
 
 
