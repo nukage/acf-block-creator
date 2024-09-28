@@ -15,6 +15,7 @@ function style_builder($style_blocks)
 
     $builder_classes = '';
     $builder_style = '';
+    $attributes = array();
 
     foreach ($style_blocks as $style_block) {
 
@@ -188,13 +189,11 @@ function style_builder($style_blocks)
                     $builder_classes .= 'leading-' . $style_block['line_height'] . ' ';
                 }
             }
-        }
-        if ($style_block['acf_fc_layout'] == 'display') {
+        } else if ($style_block['acf_fc_layout'] == 'display') {
             if ($style_block['display'] == 'block' || $style_block['display'] == 'inline') {
                 $builder_classes .= $style_block['display'] . ' ';
             }
-        }
-        if ($style_block['acf_fc_layout'] == 'size') {
+        } else if ($style_block['acf_fc_layout'] == 'size') {
             if ($style_block['w']) {
                 $builder_classes .= 'w-[' . $style_block['w'] . '] ';
                 $builder_style .= 'width: ' . $style_block['w'] . '; ';
@@ -223,21 +222,30 @@ function style_builder($style_blocks)
                 $builder_classes .= 'max-h-[' . $style_block['max-h'] . '] ';
                 $builder_style .= 'max-height: ' . $style_block['max-h'] . '; ';
             }
+        } else if ($style_block['acf_fc_layout'] == 'width') {
+            if ($style_block['width_options'] == 'default') {
+                // Do nothing
+            } else {
+                $builder_classes .= 'w-' . $style_block['width_options'] . ' ';
+            }
+        } else if ($style_block['acf_fc_layout'] == 'custom_attributes') {
+
+            if ($style_block['custom_attributes']) {
+
+
+
+                foreach ($style_block['custom_attributes'] as $item) {
+
+                    $attributes[$item['key']] = $item['value'];
+                }
+            }
         }
     }
 
-    if ($style_block['acf_fc_layout'] == 'width') {
-        if ($style_block['width_options'] == 'default') {
-            // Do nothing
-        } else {
-            $builder_classes .= 'w-' . $style_block['width_options'] . ' ';
-        }
-    }
     // echo '<pre>';
-    // echo 'style block:';
-    // var_dump($style_block);
+    // echo 'attributes :';
+    // var_dump($attributes);
     // echo '</pre>';
-
 
     // echo '<pre>';
     // echo 'style block classes:';
@@ -250,6 +258,7 @@ function style_builder($style_blocks)
     // echo '</pre>';
     return array(
         'classes' => trim($builder_classes),
-        'style' => trim($builder_style)
+        'style' => trim($builder_style),
+        'attributes' => $attributes
     );
 }

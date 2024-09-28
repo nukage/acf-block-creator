@@ -1,7 +1,7 @@
 <?php
 
 $dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (TRUE/FALSE)
-
+$dev = $is_preview ? true  : $dev;
 
 
 // Put all of the above in a function..

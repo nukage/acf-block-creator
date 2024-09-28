@@ -2,7 +2,8 @@
 
 // Get plugin options
 $dev = !get_field('nkg_render_mode', 'option');
-$css_mode =  get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
+$css_mode = !$dev && get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
+$dev = $is_preview ? true  : $dev;
 
 
 
@@ -13,14 +14,14 @@ $nameforId = strtolower(str_replace(' ', '-', $name));
 
 // Put all of the above in a function..
 
-$allowed_blocks = array('acf/column', 'core/paragraph');
+
 // $id = isset($block) ? (empty($block['anchor']) ? wp_unique_id($name) : $block['anchor']) : wp_unique_id($name);
 $blockName = str_replace('acf/', '', $block['name']);
 $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id'];
 // This ID will only be the same if the block's settings are identical to another block. This would be a great way to de-dupe ACF fields if you had a repeater block for instance.  
 
-
-
+// ALLOWED ACF BLOCKS
+$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group');
 
 
 // ACF FIELDS SETUP
@@ -96,6 +97,7 @@ if ($acf_mode == 'parent') {
         "supports" => array(
             "align" => true,
             "anchor" => true,
+            "jsx" => false
         )
     );
 } else if ($acf_mode == 'repeater') {
@@ -136,16 +138,20 @@ $blockClass = isset($block['className']) ? $block['className'] : '';
 
 
 $classes = ' ';
+$innerStyles = '';
+$innerClasses = '';
 
+// INIT STYLE BUILDER
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 
 $theme_classes = $style_builder &&  $style_builder['classes'] ?  $style_builder['classes'] . ' ' : '';
 
 
-// INIT ATTR VARS
+$innerStyles .= $style_builder['style'] ?? '';
 
-$innerClasses = '';
-$innerStyles = '';
+$attributes = $style_builder['attributes'] ?? false;
+
+
 
 // $innerClasses .= $acf_name ?   'block-name__' . $acf_name . ' ' : '';
 
@@ -192,11 +198,7 @@ if (get_field('container_type') == 'grid') {
 $theme_classes .= $gridClasses;
 $innerStyles .= $gridStyles;
 
-// INIT STYLE BUILDER
 
-$style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
-$innerStyles .= $style_builder['style'] ?? '';
-$innerClasses .=   $style_builder['classes'] ?? '';
 
 $innerClasses .= $repeater > 1 && $dev ? ' acf-repeater-clone' : '';
 
@@ -208,7 +210,7 @@ $openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
 $openingTag .= $acf_name ? 'data-name="' . trim($acf_name) . '"' : '';
 
 
-
+$openingTag .= $attributes ? "data-attributes='" . json_encode($attributes) . "' " : '';
 $openingTag .= $acf_mode !== 'none' &&  $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
 $openingTag .= isset($theme_classes) && $theme_classes ? 'data-classes="' . trim($theme_classes) . '" ' : '';
 $openingTag .= isset($block_json) && $block_json ? " data-block='" . json_encode($block_json) . "'" : '';
@@ -220,13 +222,10 @@ $openingTag .= 'style="display:none;">';
 if (!$dev && $css_mode && $acf_name) {
     // If its render mode, and CSS mode, just use the name as the class
     $innerClasses = $acf_name;
-}
-
-if (!$dev && !$css_mode) {
+} else if (!$dev && !$css_mode) {
     // If its not dev mode and not css extract mode, add the theme classes to the class list
     $innerClasses .= ' ' . $theme_classes;
-}
-if ($dev) {
+} else if ($dev) {
     // If it is dev mode, add the theme classes in. 
     $innerClasses .= ' ' . $theme_classes;
 }
@@ -258,7 +257,7 @@ echo $openingTag . '</div>' ?>
 <?php for ($i = 0; $i < $repeater; $i++) { ?>
 
     <?php
-    echo '<InnerBlocks class="' . trim($innerClasses) . '"  />'; ?>
+    echo '<InnerBlocks allowedBlocks="' . esc_attr(wp_json_encode($allowed_blocks)) . '" class="' . trim($innerClasses) . '"  />'; ?>
     <?php if ($acf_mode == 'repeater'  && !$dev) : ?>
         <!-- <php  endwhile; endif; ?>-->
     <?php endif; ?>

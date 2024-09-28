@@ -29,11 +29,27 @@ add_action('wp_enqueue_scripts', function () use ($render_mode_css) {
 
 
 
-function my_plugin_enqueue_script()
+
+
+function nkg_plugin_enqueue_script()
 {
-    wp_enqueue_script('my-plugin-script', plugins_url('/js/app.js', __FILE__), array('jquery'), '1.0.0', true);
+    wp_enqueue_script('nkg-plugin-script', plugins_url('/js/app.js', __FILE__), array('jquery'), '1.0.0', true);
+
+    wp_register_script('alpine', "//cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js", array(), '1.0.0', array('in_footer' => false, 'strategy' => 'defer'));
 }
-add_action('wp_enqueue_scripts', 'my_plugin_enqueue_script');
+add_action('wp_enqueue_scripts', 'nkg_plugin_enqueue_script');
+
+function nkg_dequeue_scripts()
+{
+    // Get the ACF option
+    $dequeue_script = get_field('nkg_render_mode', 'option');
+
+    if ($dequeue_script) {
+        wp_dequeue_script('alpine'); // Dequeue alpine so that text/classes are not rendered
+    }
+}
+add_action('wp_enqueue_scripts', 'nkg_dequeue_scripts');
+
 
 
 // function nkg_block_editor_script()
@@ -53,6 +69,9 @@ function nkg_block_editor_script()
     wp_enqueue_script('nkg-editor-script', plugins_url('/js/block-editor.js', __FILE__));
 }
 add_action('enqueue_block_editor_assets', 'nkg_block_editor_script');
+
+
+
 
 
 
@@ -103,7 +122,7 @@ add_action('enqueue_block_editor_assets', 'nkg_block_editor_script');
 function opening_tag(string $elem = 'div', array $attrs = array(), bool $self_closing = false)
 {
 
-    $json_attrs = array('data-acf', 'data-json', 'data-block-json');
+    $json_attrs = array('data-acf', 'data-json', 'data-block-json', 'data-attributes');
     $tag = '<' . $elem;
     foreach ($attrs as $key => $value) {
         $tag .= ' ' . $key . (in_array($key, $json_attrs, true) ? "='" . trim($value) . "'" : "=\"" . trim($value) . '"');
@@ -147,12 +166,18 @@ function  nkg_create_image_tag(array $image, string $image_size = 'full', string
 
 function generateLoremIpsum($minLength = 50, $maxLength = 100)
 {
+
+    // TODO: Output always starts with a capital letter
     $loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
     $words = explode(' ', $loremIpsum);
     $randomLength = rand($minLength, $maxLength);
     $randomText = '';
     for ($i = 0; $i < $randomLength; $i++) {
-        $randomText .= $words[array_rand($words)] . ' ';
+        if ($i == 0) {
+            $randomText .= ucfirst($words[array_rand($words)]) . ' ';
+        } else {
+            $randomText .= $words[array_rand($words)] . ' ';
+        }
     }
     return trim($randomText);
 }
@@ -169,6 +194,7 @@ function add_entry_content_class_for_dev_mode($classes)
         $classList .= 'nkg-dev-mode'; // Replace 'your-custom-class' with your desired class namespace
 
     } else {
+
         $classes[] = 'nkg-render-mode';
         if (get_field('css_mode', 'option')) {
             $classList .= 'nkg-css-mode';

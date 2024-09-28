@@ -1,7 +1,8 @@
 <?php
 
 $dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (FALSE/TRUE) -  
-$css_mode =  get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
+$dev = $is_preview ? true  : $dev;
+$css_mode =  !$dev && get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
 
 
 $blockName = str_replace('acf/', '', $block['name']);
@@ -64,7 +65,7 @@ $classes .= ' ' . $blockClass;
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 $styles .= $style_builder['style'] ?? '';
 $theme_classes =   $style_builder['classes'] ?? '';
-
+$attributes = $style_builder['attributes'] ?? false;
 
 
 
@@ -77,6 +78,7 @@ $hidden_tag_attrs['data-acf-mode'] = $acf_mode;
 $hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
 $hidden_tag_attrs['data-name'] = $acf_name;
 $hidden_tag_attrs['data-classes'] = isset($theme_classes) && $theme_classes ? $theme_classes : '';
+$hidden_tag_attrs['data-attributes'] = isset($attributes) ?  json_encode($attributes) : '';
 
 // Add Hidden Tag to DOM
 echo opening_tag('div', $hidden_tag_attrs) . '</div>';
@@ -90,7 +92,9 @@ if (get_field('element')) :
         $opening_tag_attrs['style'] = $styles;
         echo opening_tag(get_field('element'), $opening_tag_attrs);
     }
+
 endif;
+
 ?>
 
 

@@ -31,7 +31,6 @@ jQuery(document).ready(function ($) {
   if (acf_data_json) {
     console.log('adding data');
     acf_data_json.fields = fields;
-    acf_data_json.test = 'test';
   }
   console.log(acf_data_json);
 });
