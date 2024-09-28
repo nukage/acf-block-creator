@@ -1,6 +1,6 @@
 // const theme = require("../../themes/qntm-zero/theme.json"); // Change to the location of your theme.json and remove the line below
-const theme = require("theme.json");
-const tailpress = require("@nukage/tailthemer");
+const theme = require("./theme.json");
+const tailthemer = require("@nukage/tailthemer");
 // const qntmMapper = require("./qntm-modules/tailwind-mapper.js");
 // const plugin = require("tailwindcss/plugin");
 
@@ -82,11 +82,11 @@ module.exports = {
         },
 		colors: {
 			bordergray: "#626E6D52", 
-			...tailpress.colorMapper(
-				tailpress.theme("settings.color.palette", theme)
+			...tailthemer.colorMapper(
+				tailthemer.theme("settings.color.palette", theme)
 			),
 		},
-		width: tailpress.customMapper(tailpress.theme('settings.custom.width', theme)),
+		// width: tailthemer.customMapper(tailthemer.theme('settings.custom.width', theme)),
 		screens: {
 			// xs: "480px",
 			// sm: "600px",
@@ -100,28 +100,28 @@ module.exports = {
             'sm': '600px',
             'md': '782px',
 			'lg': '960px',
-            'xl': tailpress.theme('settings.layout.contentSize', theme),
-            '2xl': tailpress.theme('settings.layout.wideSize', theme),
+            'xl': tailthemer.theme('settings.layout.contentSize', theme),
+            '2xl': tailthemer.theme('settings.layout.wideSize', theme),
           
 		},
-		lineHeight: {...tailpress.customMapper(tailpress.theme('settings.custom.lineHeight', theme)),
+		lineHeight: {...tailthemer.customMapper(tailthemer.theme('settings.custom.lineHeight', theme)),
 			normal: "1.5",
 			none: "none",
 			tight: "1.15",
 			snug: "1.2",
 		},
-		fontSize: tailpress.fontSizeMapper(tailpress.theme('settings.typography.fontSizes', theme)),
-		fontWeight: tailpress.customMapper(tailpress.theme('settings.custom.fontWeight', theme)),
+		fontSize: tailthemer.fontSizeMapper(tailthemer.theme('settings.typography.fontSizes', theme)),
+		fontWeight: tailthemer.customMapper(tailthemer.theme('settings.custom.fontWeight', theme)),
 		spacing: {
-			...tailpress.spacingMapper(tailpress.theme('settings.spacing.spacingSizes', theme)),
+			...tailthemer.spacingMapper(tailthemer.theme('settings.spacing.spacingSizes', theme)),
 			0: '0',
 			4: '0.25rem',
 
 		},
-        fontFamily: tailpress.fontFamMapper(tailpress.theme('settings.typography.fontFamilies', theme)),
+        fontFamily: tailthemer.fontFamMapper(tailthemer.theme('settings.typography.fontFamilies', theme)),
     },
 	plugins: [
-		tailpress.tailwind,
+		tailthemer.tailwind,
         require("@tailwindcss/forms"),
 	],
 };
