@@ -1,4 +1,4 @@
-**Block Builder Setup**
+# **Block Builder Setup**
 
 Requirements:
 
@@ -14,11 +14,9 @@ Requirements:
 6.  Install required packages by running 'npm install' in the plugin directory
 7.  Type 'npm run dev' to compile the required CSS
 
-&nbsp;
+## Theme Options
 
-&nbsp;
-
-&nbsp;
+These theme option settings are required for all features to work properly.  You can use the included theme.json as an example of how to structure these.  
 
 1.  Content Size - settings.layout.contentSize
 2.  Wide Size - settings.layout.wideSize
@@ -28,6 +26,6 @@ Requirements:
 6.  Font Sizes - settings.typography.fontSizes
 7.  Font Families - settings.typography.fontFamilies
 
-Additional settings can be defined under settings.custom, and added to Tailwind using tailthemer.customMapper.  
+Additional settings can be defined under settings.custom, and added to Tailwind using tailthemer.customMapper.
 
 I designed this plugin to help me create sites in a more modular way.  In order to facilitate this, I recommend using generic names where it makes sense. Things like 'primary' and 'secondary' for fonts and colors helps with this. I also recommend taking advantage of the fluid font size and clamping options to help with mobile and tablet views.
