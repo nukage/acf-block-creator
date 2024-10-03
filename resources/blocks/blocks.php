@@ -69,3 +69,31 @@ function nkg_block_categories($categories)
     );
 }
 add_action('block_categories_all', 'nkg_block_categories', 10, 2);
+
+/**
+ * Block functions used by the generated blocks, 
+ * so these functions need to be available in the theme 
+ * if this plugin is disabled, otherwise the blocks will not work.
+ * If this plugin is enabled and these functions are also in the theme, 
+ * these ones will take precedence.
+ */
+
+
+function nkg_acf_block_id($block)
+{
+    $blockName = str_replace('acf/', '', $block['name']);
+    $id = '';
+    $id = isset($block['anchor']) && !empty($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id'];
+    return $id;
+}
+
+function nkg_acf_block_classes($block, $classes = '')
+{
+    $utility_classes = get_field('utility_classes') ? ' ' . implode(' ', get_field('utility_classes')) . ' ' : '';
+    $new_classes = '';
+    $new_classes .= isset($block['className']) ? $block['className'] . ' ' : '';
+    $new_classes .= $block['align'] ? 'align' . $block['align'] . ' ' : '';
+    $new_classes .= $classes;
+    $new_classes .= $utility_classes;
+    return trim($new_classes);
+}

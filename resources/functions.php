@@ -101,7 +101,7 @@ function opening_tag(string $elem = 'div', array $attrs = array(), bool $self_cl
  *
  * @return string The generated <img> tag
  */
-function  nkg_create_image_tag(array $image, string $image_size = 'full', string $image_class = '')
+function  nkg_create_image_tag($image, string $image_size = 'full', string $image_class = '')
 {
     if (!$image) {
         return 'Please select an image.';
@@ -116,7 +116,14 @@ function  nkg_create_image_tag(array $image, string $image_size = 'full', string
 
 
 
-
+function nkg_get_random_image()
+{
+    $images = get_field('nkg_random_images', 'option');
+    if ($images) {
+        $random_image_index = array_rand($images);
+        return $images[$random_image_index];
+    }
+}
 
 
 

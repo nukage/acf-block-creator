@@ -15,6 +15,7 @@ lowercase
 normal-case
 block
 inline
+inline-block
 grid
 flex
 flex-col
@@ -27,3 +28,8 @@ justify-around
 justify-evenly
 flex-wrap 
 flex-nowrap
+items-start
+items-end
+items-baseline
+items-stretch
+no-underline

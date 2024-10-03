@@ -21,7 +21,7 @@ $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id
 // This ID will only be the same if the block's settings are identical to another block. This would be a great way to de-dupe ACF fields if you had a repeater block for instance.  
 
 // ALLOWED ACF BLOCKS
-$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group');
+$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group', 'acf/nkg-link');
 
 
 // ACF FIELDS SETUP
@@ -30,13 +30,23 @@ $acf_mode = get_field('acf_mode'); // parent/child
 $acf_id = get_field('acf_id'); // group_15315142534534
 $acf_description = get_field('acf_description'); // Description of block
 $acf_title = get_field('acf_title'); // Title of Block
-$acf_category = get_field('acf_category') ?  get_field('acf_category') : 'nkg-blocks'; // get_field('acf_category'); Need to add this as option
 $acf_single_title = get_field('acf_single_title')  ? get_field('acf_single_title') : 'Item';
 $acf_repeater_layout = get_field('acf_repeater_layout') ? get_field('acf_repeater_layout') : 'block';
+
+$acf_fields = false;
 
 
 
 if ($acf_mode == 'parent') {
+
+    $acf_category = get_field('acf_category') ?  get_field('acf_category') : 'nkg-blocks'; // get_field('acf_category'); Need to add this as option
+    $acf_icon = get_field('acf_icon');
+    $acf_supports = get_field('acf_supports');
+
+    // echo '<pre>';
+    // var_dump($acf_supports);
+    // echo '</pre>';
+
 
     $message =   array(
         'key' => 'field_message_' . $acf_id,
@@ -90,16 +100,63 @@ if ($acf_mode == 'parent') {
         'title' => $acf_title,
         'description' => $acf_description,
         'category' => $acf_category,
+        'icon' => $acf_icon,
         'acf' => array(
             'mode' => 'preview',
             'renderTemplate' => $acf_name . '.php',
         ),
         "supports" => array(
-            "align" => true,
-            "anchor" => true,
+            "align" => $acf_supports && in_array('Align', $acf_supports)  ? array("full", "wide", "none") : false,
+            "anchor" => $acf_supports && in_array('Anchor', $acf_supports)  ? true : false,
+            "customClassName" => $acf_supports && in_array('Class', $acf_supports)  ? true : false,
             "jsx" => false
         )
     );
+
+    if ($acf_supports && in_array('Script', $acf_supports)) {
+        $block_json['script'] = $acf_name;
+    }
+    if ($acf_supports && in_array('Style', $acf_supports)) {
+        $block_json['style'] = $acf_name;
+    }
+
+    if ($acf_supports && in_array('Utility Classes', $acf_supports)) {
+
+        $acf_utilty_classes_choices = get_field('acf_utility_classes')
+            ? array_column(get_field('acf_utility_classes'), 'class_label', 'class_name') : array();
+
+
+
+        $acf_utility_classes =  array(
+            'key' => 'utility_classes_' . $acf_id,
+            'label' => 'Style Classes',
+            'name' => 'utility_classes',
+            'aria-label' => '',
+            'type' => 'select',
+            'instructions' => 'Select additional style options here.',
+            'required' => 0,
+            'wrapper' => array(
+                'width' => '',
+                'class' => '',
+                'id' => '',
+            ),
+            'choices' => $acf_utilty_classes_choices,
+            'default_value' => array(),
+            'return_format' => 'value',
+            'multiple' => 1,
+            'allow_null' => 0,
+            'allow_in_bindings' => 0,
+            'ui' => 1,
+            'ajax' => 0,
+            'placeholder' => '',
+        );
+        array_push($acf_fields['fields'], $acf_utility_classes);
+    }
+
+
+
+
+    // echo '<pre>' . var_dump($block_json) . '</pre>';
 } else if ($acf_mode == 'repeater') {
 
     $acf_fields =   array(
@@ -151,6 +208,14 @@ $innerStyles .= $style_builder['style'] ?? '';
 
 $attributes = $style_builder['attributes'] ?? false;
 
+if ($acf_mode == 'link') {
+    $attributes['href'] =    '#';
+    if (get_field('link_var') && !$dev) {
+        $attributes['href'] =  'php echo ' . get_field('link_var') . ';';
+    }
+}
+
+
 
 
 // $innerClasses .= $acf_name ?   'block-name__' . $acf_name . ' ' : '';
@@ -163,7 +228,8 @@ $innerClasses .= ' ' . $align_class;
 // $innerClasses .= ' ' . $blockClass;
 
 
-$repeater = get_field('acf_mode') == 'repeater' && get_field('repeater_preview') && !is_admin()  ? get_field('repeater_preview') : 1;
+
+$repeater = (get_field('acf_mode') == 'repeater' || get_field('acf_mode') == "query") && get_field('repeater_preview') && !is_admin()  ? get_field('repeater_preview') : 1;
 
 
 // Set up the class list
@@ -190,7 +256,7 @@ if (get_field('container_type') == 'grid') {
         $gridClasses .= "grid-cols-[repeat(auto-fill,minmax(min(" . get_field('grid_column_width') . ",100%),1fr))] ";
         $gridStyles .= "grid-template-columns: repeat(auto-fill,  minmax(min(" . get_field('grid_column_width') . ", 100%), 1fr));";
     } else if (get_field('grid_mode') == 'Custom' && get_field('grid_template_columns')) {
-        $gridClasses .= "grid-cols-[" . str_replace(' ', '', get_field('grid_template_columns')) . "] ";
+        $gridClasses .= "grid-cols-[" . str_replace(' ', ',', get_field('grid_template_columns')) . "] ";
         $gridStyles .= "grid-template-columns: " . get_field('grid_template_columns') . ";";
     }
 }
@@ -203,19 +269,10 @@ $innerStyles .= $gridStyles;
 $innerClasses .= $repeater > 1 && $dev ? ' acf-repeater-clone' : '';
 
 
-// Build the opening tag
-
-$openingTag = '<div class="nkg-group-hidden" id="' . $id . '" ';
-$openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
-$openingTag .= $acf_name ? 'data-name="' . trim($acf_name) . '"' : '';
 
 
-$openingTag .= $attributes ? "data-attributes='" . json_encode($attributes) . "' " : '';
-$openingTag .= $acf_mode !== 'none' &&  $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
-$openingTag .= isset($theme_classes) && $theme_classes ? 'data-classes="' . trim($theme_classes) . '" ' : '';
-$openingTag .= isset($block_json) && $block_json ? " data-block='" . json_encode($block_json) . "'" : '';
-$openingTag .= $dev ? 'data-style="' . trim($innerStyles) . '" ' : '';
-$openingTag .= 'style="display:none;">';
+
+
 
 // $innerClasses = !$dev && $css_mode && $acf_name ? $acf_name : $innerClasses;
 
@@ -231,6 +288,33 @@ if (!$dev && $css_mode && $acf_name) {
 }
 
 
+// If block is parent and its render mode, AND class or anchor are supported, add these special class and anchor functions
+
+if (isset($acf_supports) && $acf_mode == 'parent' && !$dev) {
+    if (in_array('Anchor', $acf_supports)) {
+        $attributes['id'] =    'php echo nkg_acf_block_id($block);';
+    }
+    if (in_array('Class', $acf_supports) || in_array('Align', $acf_supports) || in_array('Utility Classes', $acf_supports)) {   // This function used for both classes and align
+        $attributes['class'] =    'php echo nkg_acf_block_classes($block,\"' . $innerClasses . '\");';
+    }
+}
+
+
+// Build the opening tag
+
+
+
+$openingTag = '<div class="nkg-group-hidden" id="' . $id . '" ';
+$openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
+$openingTag .= $acf_name ? 'data-name="' . trim($acf_name) . '"' : '';
+$openingTag .= $acf_mode == 'link' ? 'data-element="a" ' : 'data-element="div" ';
+
+$openingTag .= $attributes ? "data-attributes='" . json_encode($attributes) . "' " : '';
+$openingTag .= $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
+$openingTag .= isset($theme_classes) && $theme_classes ? 'data-classes="' . trim($theme_classes) . '" ' : '';
+$openingTag .= isset($block_json) && $block_json ? " data-block='" . json_encode($block_json) . "'" : '';
+$openingTag .= $dev ? 'data-style="' . trim($innerStyles) . '" ' : '';
+$openingTag .= 'style="display:none;">';
 
 // echo !$dev && $css_mode && $acf_name ? '$acf_name' : '$innerClasses';
 // echo $innerClasses;
@@ -248,9 +332,28 @@ if (!$dev && $acf_mode == 'parent') : ?>
 
 
 
-echo $openingTag . '</div>' ?>
-<?php if ($acf_mode == 'repeater'  && !$dev) : ?>
-    <!--<php if ( have_rows('<?php echo $acf_name; ?>') ) : while( have_rows('<?php echo $acf_name; ?>') ) : the_row(); ?>-->
+echo $openingTag . '</div>';
+
+
+
+?>
+
+
+
+
+
+<?php if (($acf_mode == 'repeater' || $acf_mode == 'query' || $acf_mode == 'link')  && !$dev) : ?>
+
+    <?php if ($acf_mode == 'repeater') : ?>
+        <!--<php if ( have_rows('<?php echo $acf_name; ?>') ) : while( have_rows('<?php echo $acf_name; ?>') ) : the_row(); ?>-->
+    <?php endif; ?>
+    <?php if ($acf_mode == 'query' || $acf_mode == 'link') : ?>
+        <!--<php    <?php echo get_field('query_loop_php'); ?> ?>-->
+    <?php endif; ?>
+    <?php if ($acf_mode == 'query') : ?>
+        <!--<php  if ( $the_query->have_posts() ) : while( $the_query->have_posts() ) :  $the_query->the_post();  ?>-->
+    <?php endif; ?>
+
     <?php $repeater = 1; // If not dev mode, just one instance of repeater HTML 
     ?>
 <?php endif; ?>
@@ -258,7 +361,7 @@ echo $openingTag . '</div>' ?>
 
     <?php
     echo '<InnerBlocks allowedBlocks="' . esc_attr(wp_json_encode($allowed_blocks)) . '" class="' . trim($innerClasses) . '"  />'; ?>
-    <?php if ($acf_mode == 'repeater'  && !$dev) : ?>
-        <!-- <php  endwhile; endif; ?>-->
+    <?php if (($acf_mode == 'repeater' || $acf_mode == 'query')  && !$dev) : ?>
+        <!-- <php  endwhile; endif;  <?= $acf_mode = 'query' ? 'wp_reset_postdata();' : '' ?> ?>'-->
     <?php endif; ?>
 <?php }

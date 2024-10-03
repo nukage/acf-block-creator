@@ -36,6 +36,12 @@ module.exports = {
 			pattern: /^bg-[^\/]*$/,
 		},
 		{
+			pattern: /^shadow-[^\/]*$/,
+		},
+		{
+			pattern: /^rounded-[^\/]*$/,
+		},
+		{
 			pattern: /^font-[^\/]+$/,
 		},
 		{
@@ -49,7 +55,8 @@ module.exports = {
 		},
 		{
 			pattern: /^(w|min-w|max-w)-[a-z0-9\/-]+$/i,
-		  }
+		  },
+		  
 	  ],
     theme: {
         container: {

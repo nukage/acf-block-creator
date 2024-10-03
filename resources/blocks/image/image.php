@@ -82,14 +82,26 @@ echo opening_tag('div', $hidden_tag_attrs) . '</div>';
 // ADD BLOCK-SPECIFIC FIELDS
 
 $size = get_field('thumbnail_options') ? get_field('thumbnail_options') : 'full';
-$imageId = get_field('image') && get_field('image')['id'] ? get_field('image')['id'] : '';
+$imageId = '';
+// $imageId = get_field('use_random_image') ? nkg_get_random_image()['id'] :  '';
+if (get_field('use_random_image')) {
+    $imageId = nkg_get_random_image()['id'];
+} else if (get_field('image')) {
+    $imageId = get_field('image');
+}
+
 $src = wp_get_attachment_image_url($imageId, $size, false);
 
 $opening_tag_attrs = array('src' => $src, 'class' => $classes);
 if ($dev) {
     $opening_tag_attrs['style'] = $styles;
-} else { ?>
-    <!--<php  echo nkg_create_image_tag(get_field('<?= $acf_name ?>', '<?= $size ?>'), '<?= trim($classes . ' ' . $theme_classes) ?>'); ?>-->
+} elseif ($acf_mode === 'php') {
+    if (get_field('php_setup')) { ?>
+        <!--<php  <?= get_field('php_setup') ?> ?>-->
+    <?php  } ?>
+    <!--<php   echo wp_get_attachment_image(<?= get_field('content_variable') ?>, '<?= $size ?>', false, array('class'=>'<?= trim($classes . ' ' . $theme_classes) ?>')); ?>-->
+<?php } else { ?>
+    <!--<php   echo wp_get_attachment_image(get_field('<?= $acf_name ?>'), '<?= $size ?>', false, array('class'=>'<?= trim($classes . ' ' . $theme_classes) ?>')); ?>-->
 <?php }
 
 if ($src && $dev) {

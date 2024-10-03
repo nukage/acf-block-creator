@@ -7,13 +7,13 @@ jQuery(document).ready(function ($) {
 	if (!nkg_groups[0]) {
 		return;
 	}
+	$("[data-style]").each(function () {
+		$(this).next().attr("style", $(this).attr("data-style"));
+	});
 
 	// Check for data-attributes and add them to their sibling element - great for Alpine.js etc
 	nkg_groups.forEach((element) => {
-		console.log("element", element);
 		const nextElement = element.nextElementSibling;
-		console.log("nextElement", nextElement);
-
 		const dataAttributes = element.dataset.attributes
 			? JSON.parse(element.dataset.attributes)
 			: false;
@@ -22,11 +22,27 @@ jQuery(document).ready(function ($) {
 				nextElement.setAttribute(attribute, dataAttributes[attribute]);
 			}
 		}
+		replaceATags(element, nextElement);
+ 
+
 	});
 
-	$("[data-style]").each(function () {
-		$(this).next().attr("style", $(this).attr("data-style"));
-	});
+
+
+	function replaceATags (acf_parent, acf_root){
+		
+		if ((acf_parent?.dataset?.element == 'a')) {
+			console.log("element.dataset.element", acf_parent.dataset.element);
+			const aElement = acf_root.outerHTML.replace(/^<div/, '<a').replace(/<\/div>$/, '</a>');
+			acf_root.outerHTML = aElement;
+		}
+
+}
+
+ 
+
+
+
 
 	const devMode = document.body.classList.contains("nkg-dev-mode")
 		? true
@@ -136,6 +152,7 @@ jQuery(document).ready(function ($) {
 								element?.dataset?.acfMode !== "none" &&
 								element?.dataset?.acf
 							) {
+								
 								fields.push(JSON.parse(element.dataset.acf));
 							}
 						}
@@ -143,14 +160,18 @@ jQuery(document).ready(function ($) {
 				});
 
 				if (acf_data_json) {
+					const utilityClassesObject = fields.splice(fields.findIndex(obj => obj.name === 'utility_classes'), 1)[0];
+					fields.push(utilityClassesObject);
+
+
 					acf_data_json.fields = fields;
 			
 				}
 
-				console.log(
-					`-----> ACF JSON FOR: ${acf_data_json.title}`,
-					acf_data_json
-				);
+				// console.log(
+				// 	`-----> ACF JSON FOR: ${acf_data_json.title}`,
+				// 	acf_data_json
+				// );
 				return acf_data_json;
 			}
 		}
@@ -161,16 +182,14 @@ jQuery(document).ready(function ($) {
 			const whereToPutRules = acf_parent.previousElementSibling;
 
 			const sibling = acf_parent.nextElementSibling;
-			console.log('sibling', sibling);
 
 			const name = acf_parent.dataset.name;
-			console.log('name', name);
+		
 
 			 
 
 			const classElements = [acf_parent].concat(...sibling.querySelectorAll("[data-classes]"));
 
-			 console.log("classElements", classElements);
 
 			const classList = {};
 
@@ -183,8 +202,6 @@ jQuery(document).ready(function ($) {
 
 				classList[name] = classes.split(" ");
 			});
-
-			// console.log("classList", classList);
 
 			const container = document.createElement("div");
 			container.id = "css-rules-container";
@@ -213,7 +230,7 @@ jQuery(document).ready(function ($) {
 
 				const codeElement = document.createElement("code");
 				if (!className){
-					codeElement.textContent =  `@apply ${rules.join(" ")}`;
+					codeElement.textContent =  `@apply ${rules.join(" ")};`;
 				} else {
 
 					codeElement.textContent = `${className} {
@@ -302,14 +319,16 @@ jQuery(document).ready(function ($) {
 
 		function printPhpCode(acf_root) {
 	 
-			console.log("acf_root", acf_parent);
 			const container = document.createElement("code");
 			container.id = "php-container";
 			container.textContent = acf_root.outerHTML;
+			container.textContent = container.textContent.replace(/="php([^"]*)"/g, '="<?php $1 ?>"');
+			console.log(container.textContent);
 			container.textContent = container.textContent.replaceAll("<php", "<?php");
 			container.textContent = container.textContent.replaceAll("<!--", "");
 			container.textContent = container.textContent.replaceAll("-->", "");
 			container.textContent = container.textContent.replaceAll("&quot;", "\'");
+			container.textContent = container.textContent.replaceAll("\\'", "\'");
 			container.textContent = container.textContent.replace(/\s{4,}/g, "\n");
 			// This was only needed if JSX is true but apparently its true by default now
 			// container.textContent = container.textContent.replace(/x-data="\{(.*)\}"/g, '<?= !$is_preview ? \'x-data="{ $1 }"\' : \'\'; ?>'); 
@@ -341,7 +360,6 @@ jQuery(document).ready(function ($) {
 			container.id = "acf-json-container";
 			(container.textContent = JSON.stringify(get_acf_json(acf_parent))), null, 3;
 			const whereToPutCode = acf_parent.previousElementSibling;
-			// console.log("whereToPutCode", whereToPutCode);
 			const title = document.createElement("h5");
 			title.textContent = "ACF JSON";
 			whereToPutCode.appendChild(title);
@@ -349,6 +367,16 @@ jQuery(document).ready(function ($) {
 			const hr = document.createElement("hr");
 			whereToPutCode.appendChild(hr);
 		}
+		function replaceATags (acf_parent, acf_root){
+		
+				if ((acf_parent.dataset.element == 'a')) {
+					console.log("element.dataset.element", element.dataset.element);
+					const aElement = acf_root.outerHTML.replace(/^<div/, '<a').replace(/<\/div>$/, '</a>');
+					acf_root.outerHTML = aElement;
+				}
+		
+		}
+
 
 		nkg_parents.forEach((acf_parent) => {
 			const acf_root = acf_parent.nextElementSibling;
@@ -357,12 +385,12 @@ jQuery(document).ready(function ($) {
 			printBlockJson(acf_parent);
 			printAcfJson(acf_parent);
 			fixSubField(acf_parent);
-			
-					if (cssMode) {
-						classExtractor(acf_parent);
-					}
-					removeHidden(acf_parent);
-					printPhpCode(acf_root);
+		if (cssMode) {
+			classExtractor(acf_parent);
+		}
+			replaceATags(acf_parent, acf_root);
+			removeHidden(acf_parent);
+			printPhpCode(acf_root);
 		});
 
 

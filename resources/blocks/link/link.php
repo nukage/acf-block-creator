@@ -1,13 +1,12 @@
 <?php
 
-$dev = !get_field('nkg_render_mode', 'option'); // DEV MODE (FALSE/TRUE) -  
+$dev = !get_field('nkg_render_mode', 'option');
 $dev = $is_preview ? true  : $dev;
 $css_mode =  !$dev && get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
 
-
 $blockName = str_replace('acf/', '', $block['name']);
 $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id'];
-// This ID will only be the same if the block's settings are identical to another block. 
+
 
 
 // ACF FIELDS SETUP
@@ -18,14 +17,13 @@ $acf_instructions = get_field('acf_instructions');
 $acf_title = get_field('acf_title');
 $acf_fields = '';
 
-
 if (get_field('acf_mode') == 'child') {
     $acf_fields =  array(
         'key' => 'field_' . $acf_id,
         'label' => $acf_title,
         'name' => $acf_name,
         'aria-label' => '',
-        'type' => 'textarea',
+        'type' => 'link',
         'instructions' => $acf_instructions,
         'required' => 0,
         'conditional_logic' => 0,
@@ -43,11 +41,9 @@ if (get_field('acf_mode') == 'child') {
     );
 }
 
-
 $align_class = $block['align'] ? 'align' . $block['align'] : '';
 $blockClass = '';
 $blockClass = isset($block['className']) ? $block['className'] : '';
-
 
 // INIT ATTR VARS
 
@@ -69,9 +65,6 @@ $attributes = $style_builder['attributes'] ?? false;
 
 
 
-// GET BLOCK-SPECIFIC FIELDS
-
-$preview_text = get_field('preview_text');
 
 // CREATE HIDDEN TAG
 
@@ -81,50 +74,34 @@ $hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
 $hidden_tag_attrs['data-name'] = $acf_name;
 $hidden_tag_attrs['data-classes'] = isset($theme_classes) && $theme_classes ? $theme_classes : '';
 $hidden_tag_attrs['data-attributes'] = isset($attributes) ?  json_encode($attributes) : '';
-
 // Add Hidden Tag to DOM
 echo opening_tag('div', $hidden_tag_attrs) . '</div>';
 
-if (get_field('element')) :
+// UNIQUE CLASSES
+$link = get_field('link');
+$opening_tag_attrs = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
+$opening_tag_attrs['target'] = $link['target'] ? $link['target'] : '_self';
+$opening_tag_attrs['href'] = $link['url'] ? $link['url'] : '';
 
-
-    $opening_tag_attrs = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
-    if (get_field('element') == 'a') {
-        $opening_tag_attrs['href'] = '#';
-    }
-
-    if ($dev) {
-        // Adding styles for Dev mode only
-        $opening_tag_attrs['style'] = $styles;
-        echo opening_tag(get_field('element'), $opening_tag_attrs);
-    }
-
-endif;
-
-
-?>
-
-
-<?php echo $element ?? '';
+$title = (get_field('generate_random_text') && get_field('text_length')) ? generateLoremIpsum(get_field('text_length'), get_field('text_length')) : ($link['title'] ? $link['title'] : '');
 if ($dev) {
-    echo  get_field('generate_random_text') && get_field('text_length') ? generateLoremIpsum(get_field('text_length'), get_field('text_length')) : get_field('preview_text');
-} elseif ($acf_mode === 'php') {
-    if (get_field('php_setup')) { ?>
-        <!--<php  <?= get_field('php_setup') ?> ?>-->
-    <?php  } ?>
-    <?php if (get_field('element') == 'a' && get_field('link_var')) {
-        $opening_tag_attrs['href'] = '\'.' . get_field('link_var') . '.\'';
-    } ?>
-    <!--<php  echo <?= get_field('content_variable') ?> ? '<?= opening_tag(get_field('element'), $opening_tag_attrs) ?>' . <?= get_field('content_variable') ?> . '</<?= get_field('element') ?>>' : ''; ?>-->
-<?php } else { ?>
-    <!--<php  echo get_field('<?= $acf_name ?>') ? '<?= opening_tag(get_field('element'), $opening_tag_attrs) ?>' . get_field('<?= $acf_name ?>') . '</<?= get_field('element') ?>>' : ''; ?>-->
-<?php }
+    // Adding styles for Dev mode only
+    $opening_tag_attrs['style'] = $styles;
+}
 
 
-?>
+if ($link) {
+    if ($dev) {
 
-
-
-
-
-</<?php echo $dev ? get_field('element') : ''; ?>>
+        echo opening_tag('a', $opening_tag_attrs);
+        echo $title;
+        echo '</a>';
+    } else { ?>
+        <!--
+        <php $link = get_field('<?php echo $acf_name ?>'); ?>
+        <php $link_target = $link && $link['target'] ? $link['target'] : '_self';?>
+        <php $link_url = $link && $link['url'] ? $link['url'] : '';?>
+        <php $link_title = $link && $link['title'] ? $link['title'] : '';?>        
+        <php echo '<a href="' . $link_url . '" target="'.$link_target.'" class="<?= $classes ?>">'.$link_title.'</a>'; ?>-->
+<? }
+}

@@ -21,7 +21,7 @@ function style_builder($style_blocks)
 
         if ($style_block['acf_fc_layout'] == 'class_list') {
 
-            $builder_classes .= ' ' . $style_block['class_list'];
+            $builder_classes .= ' ' . $style_block['class_list'] . ' ';
         } else if ($style_block['acf_fc_layout'] == 'spacing') {
 
 
@@ -190,7 +190,7 @@ function style_builder($style_blocks)
                 }
             }
         } else if ($style_block['acf_fc_layout'] == 'display') {
-            if ($style_block['display'] == 'block' || $style_block['display'] == 'inline') {
+            if (isset($style_block['display'])) {
                 $builder_classes .= $style_block['display'] . ' ';
             }
         } else if ($style_block['acf_fc_layout'] == 'size') {

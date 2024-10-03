@@ -20,3 +20,8 @@ img {
 .wp-block-acf-nkg-group .block-editor-block-list__layout {
 	height: 100%;
 }
+
+.wp-block-acf-nkg-group .nkg-hidden + a {
+	pointer-events: none;
+	@apply no-underline shadow-lg;
+}

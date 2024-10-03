@@ -6,7 +6,7 @@ Requirements:
 - Advanced Custom Fields Pro
 - A local install of Wordpress is recommended but not required.
 
-1.  Install the Block Builder plugin. Currently the easiest way is to use [WP Pusher](https://wppusher.com/) which allows you to install themes and plugins from Git, or just download direct from git.
+1.  Git clone the Block Builder plugin into your /wp-content/plugins folder. 
 2.  Ensure that ACF Pro is installed and activated, as it is a requirement for this plugin.
 3.  This plugin uses your Wordpress theme's Theme.json file to generate the tailwind classes needed. It will look for certain customizations in your theme.json, and it is highly recommended that all of these are defined, otherwise you will be missing certain style options. I have listed these below.
 4.  If you are using a block theme and you have used the site editor to customize your theme, ensure your theme customizations have been exported from the database into theme.json. You can use the Create Block Theme plugin to do this automatically.
