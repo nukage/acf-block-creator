@@ -188,6 +188,7 @@ if ($acf_mode == 'parent') {
 
 
 $align_class = $block['align'] ? 'align' . $block['align'] : '';
+$align_class = !$dev && isset($acf_supports) && in_array('Align', $acf_supports) ? '' : $align_class; // If its render mode and Align is not supported, remove the align class from the block.
 
 
 $blockClass = '';
@@ -197,11 +198,15 @@ $blockClass = isset($block['className']) ? $block['className'] : '';
 $classes = ' ';
 $innerStyles = '';
 $innerClasses = '';
+// ADD TYPICAL BLOCK CLASSES TO CLASS LIST
+$innerClasses .= $acf_name ?  $acf_name . ' ' : '';
+$innerClasses .= ' ' . $align_class;
 
 // INIT STYLE BUILDER
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
-
+$innerClasses .=  isset($style_builder['wp_classes']) ? ' ' . $style_builder['wp_classes'] : '';
 $theme_classes = $style_builder &&  $style_builder['classes'] ?  $style_builder['classes'] . ' ' : '';
+
 
 
 $innerStyles .= $style_builder['style'] ?? '';
@@ -218,15 +223,6 @@ if ($acf_mode == 'link') {
 
 
 
-// $innerClasses .= $acf_name ?   'block-name__' . $acf_name . ' ' : '';
-
-
-
-// ADD TYPICAL BLOCK CLASSES TO CLASS LIST
-
-$innerClasses .= ' ' . $align_class;
-// $innerClasses .= ' ' . $blockClass;
-
 
 
 $repeater = (get_field('acf_mode') == 'repeater' || get_field('acf_mode') == "query") && get_field('repeater_preview') && !is_admin()  ? get_field('repeater_preview') : 1;
@@ -234,7 +230,7 @@ $repeater = (get_field('acf_mode') == 'repeater' || get_field('acf_mode') == "qu
 
 // Set up the class list
 
-$innerClasses .= $acf_name ?  $acf_name . ' ' : '';
+
 // $innerClasses .= 'blockid-' . $id  . ' ';
 $theme_classes .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
 $theme_classes .= get_field('container_type') && get_field('container_type') !== 'default' ?  get_field('container_type') . ' ' : '';
@@ -278,7 +274,7 @@ $innerClasses .= $repeater > 1 && $dev ? ' acf-repeater-clone' : '';
 
 if (!$dev && $css_mode && $acf_name) {
     // If its render mode, and CSS mode, just use the name as the class
-    $innerClasses = $acf_name;
+    // $innerClasses = $acf_name;  < no this was a bad idea because we lost the align class
 } else if (!$dev && !$css_mode) {
     // If its not dev mode and not css extract mode, add the theme classes to the class list
     $innerClasses .= ' ' . $theme_classes;
