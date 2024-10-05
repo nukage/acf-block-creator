@@ -1,6 +1,4 @@
 <?php
-return;
-
 add_action('acf/include_fields', function () {
     if (! function_exists('acf_add_local_field_group')) {
         return;
@@ -1170,7 +1168,7 @@ add_action('acf/include_fields', function () {
 
     acf_add_local_field_group(array(
         'key' => 'group_66ef118f98d7e',
-        'title' => 'NKG Basic Block: Textarea',
+        'title' => 'NKG Basic Block: Text',
         'fields' => array(
             array(
                 'key' => 'field_66ef118f17648',
@@ -1245,6 +1243,107 @@ add_action('acf/include_fields', function () {
                 'append' => '',
             ),
             array(
+                'key' => 'field_66ff10e9543d9',
+                'label' => 'Input Field',
+                'name' => 'acf_input_field',
+                'aria-label' => '',
+                'type' => 'select',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'choices' => array(
+                    'Text' => 'Text',
+                    'Textarea' => 'Textarea',
+                    'WYSIWYG' => 'WYSIWYG',
+                    'Number' => 'Number',
+                ),
+                'default_value' => false,
+                'return_format' => 'value',
+                'multiple' => 0,
+                'allow_null' => 0,
+                'allow_in_bindings' => 0,
+                'ui' => 0,
+                'ajax' => 0,
+                'placeholder' => '',
+            ),
+            array(
+                'key' => 'field_670001b83bbba',
+                'label' => 'WSIWYG Toolbar',
+                'name' => 'acf_toolbar_options',
+                'aria-label' => '',
+                'type' => 'select',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_66ff10e9543d9',
+                            'operator' => '==',
+                            'value' => 'WYSIWYG',
+                        ),
+                    ),
+                ),
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'choices' => array(
+                    'Full' => 'Full',
+                    'Balanced' => 'Balanced',
+                    'Minimal' => 'Minimal',
+                ),
+                'default_value' => false,
+                'return_format' => 'value',
+                'multiple' => 0,
+                'allow_null' => 0,
+                'allow_in_bindings' => 0,
+                'ui' => 0,
+                'ajax' => 0,
+                'placeholder' => '',
+            ),
+            array(
+                'key' => 'field_670001b83bbba',
+                'label' => 'WSIWYG Toolbar',
+                'name' => 'acf_toolbar_options',
+                'aria-label' => '',
+                'type' => 'select',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_66ff10e9543d9',
+                            'operator' => '==',
+                            'value' => 'WYSIWYG',
+                        ),
+                    ),
+                ),
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'choices' => array(
+                    'Full' => 'Full',
+                    'Balanced' => 'Balanced',
+                    'Minimal' => 'Minimal',
+                ),
+                'default_value' => false,
+                'return_format' => 'value',
+                'multiple' => 0,
+                'allow_null' => 0,
+                'allow_in_bindings' => 0,
+                'ui' => 0,
+                'ajax' => 0,
+                'placeholder' => '',
+            ),
+            array(
                 'key' => 'field_66ef1685606cd',
                 'label' => 'Element',
                 'name' => 'element',
@@ -1252,7 +1351,15 @@ add_action('acf/include_fields', function () {
                 'type' => 'select',
                 'instructions' => '',
                 'required' => 0,
-                'conditional_logic' => 0,
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_66ff10e9543d9',
+                            'operator' => '!=',
+                            'value' => 'WYSIWYG',
+                        ),
+                    ),
+                ),
                 'wrapper' => array(
                     'width' => '',
                     'class' => '',
@@ -1791,6 +1898,33 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
                                 'rows' => '',
                                 'placeholder' => '',
                                 'new_lines' => '',
+                            ),
+                            array(
+                                'key' => 'field_670158e6163b9',
+                                'label' => 'Extract',
+                                'name' => 'extract',
+                                'aria-label' => '',
+                                'type' => 'select',
+                                'instructions' => '',
+                                'required' => 0,
+                                'conditional_logic' => 0,
+                                'wrapper' => array(
+                                    'width' => '',
+                                    'class' => '',
+                                    'id' => '',
+                                ),
+                                'choices' => array(
+                                    'Yes' => 'Yes',
+                                    'No' => 'No',
+                                ),
+                                'default_value' => false,
+                                'return_format' => 'value',
+                                'multiple' => 0,
+                                'allow_null' => 0,
+                                'allow_in_bindings' => 0,
+                                'ui' => 0,
+                                'ajax' => 0,
+                                'placeholder' => '',
                             ),
                         ),
                         'min' => '',
