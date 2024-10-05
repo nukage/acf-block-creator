@@ -68,6 +68,7 @@ $classes .= ' ' . $blockClass;
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 $styles .= $style_builder['style'] ?? '';
 $theme_classes =   $style_builder['classes'] ?? '';
+$classes .=  isset($style_builder['wp_classes']) ? ' ' . $style_builder['wp_classes'] : '';
 
 
 // CREATE HIDDEN TAG

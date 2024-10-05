@@ -14,14 +14,18 @@ function style_builder($style_blocks)
 
 
     $builder_classes = '';
+    $builder_wp_classes = '';
     $builder_style = '';
     $attributes = array();
 
     foreach ($style_blocks as $style_block) {
 
         if ($style_block['acf_fc_layout'] == 'class_list') {
-
-            $builder_classes .= ' ' . $style_block['class_list'] . ' ';
+            if (isset($style_block['extract']) && $style_block['extract'] == 'No') {
+                $builder_wp_classes .= ' ' . $style_block['class_list'] . ' ';
+            } else {
+                $builder_classes .= ' ' . $style_block['class_list'] . ' ';
+            }
         } else if ($style_block['acf_fc_layout'] == 'spacing') {
 
 
@@ -258,6 +262,7 @@ function style_builder($style_blocks)
     // echo '</pre>';
     return array(
         'classes' => trim($builder_classes),
+        'wp_classes' => trim($builder_wp_classes),
         'style' => trim($builder_style),
         'attributes' => $attributes
     );

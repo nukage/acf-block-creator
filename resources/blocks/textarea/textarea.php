@@ -72,7 +72,6 @@ $style_builder = get_field('style_builder') ? style_builder(get_field('style_bui
 $styles .= $style_builder['style'] ?? '';
 $theme_classes =   $style_builder['classes'] ?? '';
 $classes .=  isset($style_builder['wp_classes']) ? ' ' . $style_builder['wp_classes'] : '';
-echo $classes;
 $attributes = $style_builder['attributes'] ?? false;
 
 
