@@ -170,8 +170,55 @@ function namespace_populate_thumbnail_options_field(array $field): array
         $formatted_thumbnail = ucwords(str_replace('_', ' ', $thumbnail));
         $field['choices'][esc_attr($thumbnail)] = esc_html($formatted_thumbnail);
     }
-
+    // echo '<pre>';
+    // var_dump($field);
+    // echo '</pre>';
     return $field;
 }
 
 add_filter('acf/load_field/name=thumbnail_options', 'namespace_populate_thumbnail_options_field', 10, 1);
+
+
+function namespace_populate_acf_toolbar_options_field(array $field): array
+{
+
+    $acf_toolbar_options  = array();
+
+    // Get the current toolbars registered for ACF
+    $acf_toolbar_options  = apply_filters('acf/fields/wysiwyg/toolbars', array());
+
+    // echo '<pre>';
+    // echo 'TOOLBAR OPTIONS: ';
+    // var_dump($acf_toolbar_options);
+    // echo '</pre>';
+    // $field['choices'] = [];
+    // $field['choices']['full'] = 'Full Size';
+
+    foreach ($acf_toolbar_options as $key => $acf_toolbar) {
+
+        $field['choices'][esc_attr($key)] = esc_html($key);
+    }
+    // echo '<pre>';
+    // echo 'ACF TOOLBARS';
+    // var_dump($field);
+    // echo '</pre>';
+    return $field;
+}
+
+add_filter('acf/load_field/name=acf_toolbar_options', 'namespace_populate_acf_toolbar_options_field', 10, 1);
+
+
+
+function get_acf_wysiwyg_toolbars()
+{
+    // Initialize an empty array to hold the toolbars
+    $toolbars = array();
+
+    // Get the current toolbars registered for ACF
+    $toolbars = apply_filters('acf/fields/wysiwyg/toolbars', array());
+
+    return $toolbars;
+}
+// echo '<pre>';
+// var_dump(get_acf_wysiwyg_toolbars());
+// echo '</pre>';

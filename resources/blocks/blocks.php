@@ -97,3 +97,47 @@ function nkg_acf_block_classes($block, $classes = '')
     $new_classes .= $utility_classes;
     return trim($new_classes);
 }
+
+
+/********************************
+ ADVANCED CUSTOM FIELDS TINYMCE TOOLBARS
+ ********************************/
+
+function my_toolbars($toolbars)
+{
+
+    $toolbars['Full'] = array();
+    $toolbars['Full'][1] = array('bold', 'italic', 'underline', 'bullist', 'numlist', 'alignleft', 'aligncenter', 'alignright', 'alignjustify', 'link', 'unlink', 'hr', 'spellchecker', 'wp_more', 'wp_adv');
+    $toolbars['Full'][2] = array('styleselect', 'formatselect', 'fontselect', 'fontsizeselect', 'forecolor', 'pastetext', 'removeformat', 'charmap', 'outdent', 'indent', 'undo', 'redo', 'wp_help');
+
+    $toolbars['Balanced'] = array();
+    $toolbars['Balanced'][1] = array('bold', 'italic', 'underline', 'bullist', 'numlist', 'alignleft', 'aligncenter', 'alignright', 'alignjustify', 'link', 'unlink', 'hr', 'spellchecker', 'wp_more', 'wp_adv');
+    $toolbars['Balanced'][2] = array('styleselect', 'formatselect', 'fontselect', 'fontsizeselect', 'forecolor', 'pastetext', 'removeformat', 'charmap', 'outdent', 'indent', 'undo', 'redo', 'wp_help');
+
+    $toolbars['Minimal'] = array();
+    $toolbars['Minimal'][1] = array('bold', 'italic', 'underline', 'bullist', 'numlist', 'link', 'unlink');
+
+    // remove the 'Basic' toolbar completely (if you want)
+    // unset($toolbars['Basic']);
+
+    // return $toolbars - IMPORTANT!
+    return $toolbars;
+}
+add_filter('acf/fields/wysiwyg/toolbars', 'my_toolbars');
+
+/**
+ * Add Gutenburg classes to outputs from WYSIWYG editors so they automatically match what is defined in theme.json
+ */
+
+add_filter('acf/format_value/type=wysiwyg', 'add_custom_classes_to_acf_wysiwyg', 10, 3);
+
+function add_custom_classes_to_acf_wysiwyg($value, $post_id, $field)
+{
+    // Add class to headings
+    $value = preg_replace('/<h([1-6]?)\s?([^>]*)>/', '<h$1 class="wp-block-heading" $2>', $value);
+
+    // Add class to lists (both ordered and unordered)
+    $value = preg_replace('/<(ul|ol)\s?([^>]*)>/', '<$1 class="wp-block-list" $2>', $value);
+
+    return $value;
+}

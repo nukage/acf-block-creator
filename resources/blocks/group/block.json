@@ -19,5 +19,6 @@
         "anchor": true,
         "align": true,
         "jsx": true
-    }
+    },
+    "transforms": {}
 }

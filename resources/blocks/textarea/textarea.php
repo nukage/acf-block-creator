@@ -17,6 +17,8 @@ $acf_id = get_field('acf_id');
 $acf_instructions = get_field('acf_instructions');
 $acf_title = get_field('acf_title');
 $acf_fields = '';
+$acf_input_field = get_field('acf_input_field'); // types: text, textarea, number, wysiwyg
+$acf_wysiwyg_toolbar = get_field('acf_toolbar_options');
 
 
 if (get_field('acf_mode') == 'child') {
@@ -25,7 +27,7 @@ if (get_field('acf_mode') == 'child') {
         'label' => $acf_title,
         'name' => $acf_name,
         'aria-label' => '',
-        'type' => 'textarea',
+        'type' => $acf_input_field ? strtolower($acf_input_field) : 'text',
         'instructions' => $acf_instructions,
         'required' => 0,
         'conditional_logic' => 0,
@@ -41,6 +43,10 @@ if (get_field('acf_mode') == 'child') {
         'placeholder' => '',
         'new_lines' => '',
     );
+    if ($acf_input_field == 'WYSIWYG') {
+        $acf_fields['media_upload'] = 0;
+        $acf_fields['toolbar'] = $acf_wysiwyg_toolbar ? strtolower($acf_wysiwyg_toolbar) : 'full';
+    }
 }
 
 
@@ -65,6 +71,8 @@ $classes .= ' ' . $blockClass;
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 $styles .= $style_builder['style'] ?? '';
 $theme_classes =   $style_builder['classes'] ?? '';
+$classes .=  isset($style_builder['wp_classes']) ? ' ' . $style_builder['wp_classes'] : '';
+echo $classes;
 $attributes = $style_builder['attributes'] ?? false;
 
 
@@ -72,6 +80,7 @@ $attributes = $style_builder['attributes'] ?? false;
 // GET BLOCK-SPECIFIC FIELDS
 
 $preview_text = get_field('preview_text');
+$element = $acf_input_field == 'WYSIWYG' ? 'div' : (get_field('element') ? get_field('element') : '');
 
 // CREATE HIDDEN TAG
 
@@ -85,19 +94,21 @@ $hidden_tag_attrs['data-attributes'] = isset($attributes) ?  json_encode($attrib
 // Add Hidden Tag to DOM
 echo opening_tag('div', $hidden_tag_attrs) . '</div>';
 
-if (get_field('element')) :
+if ($element) :
 
 
     $opening_tag_attrs = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
-    if (get_field('element') == 'a') {
+    if ($element == 'a') {
         $opening_tag_attrs['href'] = '#';
     }
 
     if ($dev) {
         // Adding styles for Dev mode only
         $opening_tag_attrs['style'] = $styles;
-        echo opening_tag(get_field('element'), $opening_tag_attrs);
+        echo opening_tag($element, $opening_tag_attrs);
     }
+
+
 
 endif;
 
@@ -105,19 +116,23 @@ endif;
 ?>
 
 
-<?php echo $element ?? '';
+<?php
 if ($dev) {
+
+    // Generate Text Content
+    echo $acf_input_field == 'WYSIWYG' ? '<p>' : '';
     echo  get_field('generate_random_text') && get_field('text_length') ? generateLoremIpsum(get_field('text_length'), get_field('text_length')) : get_field('preview_text');
+    echo $acf_input_field == 'WYSIWYG' ? '</p>' : '';
 } elseif ($acf_mode === 'php') {
     if (get_field('php_setup')) { ?>
         <!--<php  <?= get_field('php_setup') ?> ?>-->
     <?php  } ?>
-    <?php if (get_field('element') == 'a' && get_field('link_var')) {
+    <?php if ($element == 'a' && get_field('link_var')) {
         $opening_tag_attrs['href'] = '\'.' . get_field('link_var') . '.\'';
     } ?>
-    <!--<php  echo <?= get_field('content_variable') ?> ? '<?= opening_tag(get_field('element'), $opening_tag_attrs) ?>' . <?= get_field('content_variable') ?> . '</<?= get_field('element') ?>>' : ''; ?>-->
+    <!--<php  echo <?= get_field('content_variable') ?> ? '<?= opening_tag($element, $opening_tag_attrs) ?>' . <?= get_field('content_variable') ?> . '</<?= $element ?>>' : ''; ?>-->
 <?php } else { ?>
-    <!--<php  echo get_field('<?= $acf_name ?>') ? '<?= opening_tag(get_field('element'), $opening_tag_attrs) ?>' . get_field('<?= $acf_name ?>') . '</<?= get_field('element') ?>>' : ''; ?>-->
+    <!--<php  echo get_field('<?= $acf_name ?>') ? '<?= opening_tag($element, $opening_tag_attrs) ?>' . get_field('<?= $acf_name ?>') . '</<?= $element ?>>' : ''; ?>-->
 <?php }
 
 
@@ -127,4 +142,4 @@ if ($dev) {
 
 
 
-</<?php echo $dev ? get_field('element') : ''; ?>>
+</<?php echo $dev ? $element : ''; ?>>
