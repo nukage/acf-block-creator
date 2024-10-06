@@ -21,7 +21,7 @@ $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id
 // This ID will only be the same if the block's settings are identical to another block. This would be a great way to de-dupe ACF fields if you had a repeater block for instance.  
 
 // ALLOWED ACF BLOCKS
-$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group', 'acf/nkg-link');
+$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group', 'acf/nkg-link', 'acf/nkg-code');
 
 
 // ACF FIELDS SETUP
@@ -32,6 +32,9 @@ $acf_description = get_field('acf_description'); // Description of block
 $acf_title = get_field('acf_title'); // Title of Block
 $acf_single_title = get_field('acf_single_title')  ? get_field('acf_single_title') : 'Item';
 $acf_repeater_layout = get_field('acf_repeater_layout') ? get_field('acf_repeater_layout') : 'block';
+$acf_script = get_field('acf_script');
+$acf_script_dependencies = get_field('acf_script_dependencies');
+
 
 $acf_fields = false;
 
@@ -110,7 +113,8 @@ if ($acf_mode == 'parent') {
             "anchor" => $acf_supports && in_array('Anchor', $acf_supports)  ? true : false,
             "customClassName" => $acf_supports && in_array('Class', $acf_supports)  ? true : false,
             "jsx" => false
-        )
+        ),
+        "dependencies" => $acf_script_dependencies,
     );
 
     if ($acf_supports && in_array('Script', $acf_supports)) {
@@ -358,6 +362,7 @@ echo $openingTag . '</div>';
     <?php
     echo '<InnerBlocks allowedBlocks="' . esc_attr(wp_json_encode($allowed_blocks)) . '" class="' . trim($innerClasses) . '"  />'; ?>
     <?php if (($acf_mode == 'repeater' || $acf_mode == 'query')  && !$dev) : ?>
-        <!-- <php  endwhile; endif;  <?= $acf_mode = 'query' ? 'wp_reset_postdata();' : '' ?> ?>'-->
+        <!-- <php  endwhile; endif;  <?= $acf_mode = 'query' ? 'wp_reset_postdata();' : '' ?> ?>-->
     <?php endif; ?>
 <?php }
+echo $acf_script ? '<script>' . $acf_script . '</script>' : '';

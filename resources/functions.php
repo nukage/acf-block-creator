@@ -35,7 +35,7 @@ function nkg_plugin_enqueue_script()
 {
     wp_enqueue_script('nkg-plugin-script', plugins_url('/js/app.js', __FILE__), array('jquery'), '1.0.0', true);
 
-    wp_register_script('alpine', "//cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js", array(), '1.0.0', array('in_footer' => false, 'strategy' => 'defer'));
+    wp_enqueue_script('alpine', "//cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js", array(), '1.0.0', array('in_footer' => false, 'strategy' => 'defer'));
 }
 add_action('wp_enqueue_scripts', 'nkg_plugin_enqueue_script');
 

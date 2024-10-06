@@ -1,4 +1,5 @@
 <?php
+
 add_action('acf/include_fields', function () {
     if (! function_exists('acf_add_local_field_group')) {
         return;
@@ -224,6 +225,52 @@ add_action('acf/include_fields', function () {
                     'param' => 'block',
                     'operator' => '==',
                     'value' => 'acf/nkg-link',
+                ),
+            ),
+        ),
+        'menu_order' => 0,
+        'position' => 'normal',
+        'style' => 'default',
+        'label_placement' => 'top',
+        'instruction_placement' => 'label',
+        'hide_on_screen' => '',
+        'active' => true,
+        'description' => '',
+        'show_in_rest' => 0,
+    ));
+
+    acf_add_local_field_group(array(
+        'key' => 'group_67029e9756574',
+        'title' => 'NKG Basic Block: Code',
+        'fields' => array(
+            array(
+                'key' => 'field_67029e9796dcd',
+                'label' => 'Code Content',
+                'name' => 'code_content',
+                'aria-label' => '',
+                'type' => 'textarea',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => 0,
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'default_value' => '',
+                'maxlength' => '',
+                'allow_in_bindings' => 0,
+                'rows' => '',
+                'placeholder' => '',
+                'new_lines' => '',
+            ),
+        ),
+        'location' => array(
+            array(
+                array(
+                    'param' => 'block',
+                    'operator' => '==',
+                    'value' => 'acf/nkg-code',
                 ),
             ),
         ),
@@ -568,6 +615,8 @@ add_action('acf/include_fields', function () {
                 ),
                 'choices' => array(
                     0 => '0',
+                    5 => '5',
+                    10 => '10',
                     20 => '20',
                     30 => '30',
                     40 => '40',
@@ -1044,13 +1093,6 @@ add_action('acf/include_fields', function () {
                 'conditional_logic' => array(
                     array(
                         array(
-                            'field' => 'field_66ef0c7389425',
-                            'operator' => '==',
-                            'value' => 'parent',
-                        ),
-                    ),
-                    array(
-                        array(
                             'field' => 'field_66fe90a996936',
                             'operator' => '==',
                             'value' => 'Utility Classes',
@@ -1144,6 +1186,72 @@ add_action('acf/include_fields', function () {
                 'rows' => '',
                 'placeholder' => '',
                 'new_lines' => '',
+            ),
+            array(
+                'key' => 'field_670280b2b5fb7',
+                'label' => 'Script',
+                'name' => 'acf_script',
+                'aria-label' => '',
+                'type' => 'textarea',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_66fe90a996936',
+                            'operator' => '==',
+                            'value' => 'Script',
+                        ),
+                    ),
+                ),
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'default_value' => '',
+                'maxlength' => '',
+                'allow_in_bindings' => 0,
+                'rows' => '',
+                'placeholder' => '',
+                'new_lines' => '',
+            ),
+            array(
+                'key' => 'field_6702828689726',
+                'label' => 'Script Dependencies',
+                'name' => 'acf_script_dependencies',
+                'aria-label' => '',
+                'type' => 'select',
+                'instructions' => '',
+                'required' => 0,
+                'conditional_logic' => array(
+                    array(
+                        array(
+                            'field' => 'field_66fe90a996936',
+                            'operator' => '==',
+                            'value' => 'Script',
+                        ),
+                    ),
+                ),
+                'wrapper' => array(
+                    'width' => '',
+                    'class' => '',
+                    'id' => '',
+                ),
+                'choices' => array(
+                    'jquery' => 'jQuery',
+                    'alpine' => 'Alpine',
+                    'htmx' => 'HTMX',
+                    'vue3' => 'Vue 3',
+                ),
+                'default_value' => array(),
+                'return_format' => 'value',
+                'multiple' => 1,
+                'allow_null' => 0,
+                'allow_in_bindings' => 0,
+                'ui' => 1,
+                'ajax' => 0,
+                'placeholder' => '',
             ),
         ),
         'location' => array(
@@ -2008,6 +2116,8 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
                                 ),
                                 'choices' => array(
                                     0 => '0',
+                                    5 => '5',
+                                    10 => '10',
                                     20 => '20',
                                     30 => '30',
                                     40 => '40',

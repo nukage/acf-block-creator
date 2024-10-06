@@ -22,22 +22,29 @@ jQuery(document).ready(function ($) {
   if (!nkg_groups[0]) {
     return;
   }
+  $("[data-style]").each(function () {
+    $(this).next().attr("style", $(this).attr("data-style"));
+  });
 
   // Check for data-attributes and add them to their sibling element - great for Alpine.js etc
   nkg_groups.forEach(function (element) {
-    console.log("element", element);
     var nextElement = element.nextElementSibling;
-    console.log("nextElement", nextElement);
     var dataAttributes = element.dataset.attributes ? JSON.parse(element.dataset.attributes) : false;
     if (dataAttributes && nextElement) {
       for (var attribute in dataAttributes) {
         nextElement.setAttribute(attribute, dataAttributes[attribute]);
       }
     }
+    replaceATags(element, nextElement);
   });
-  $("[data-style]").each(function () {
-    $(this).next().attr("style", $(this).attr("data-style"));
-  });
+  function replaceATags(acf_parent, acf_root) {
+    var _acf_parent$dataset;
+    if ((acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset = acf_parent.dataset) === null || _acf_parent$dataset === void 0 ? void 0 : _acf_parent$dataset.element) == 'a') {
+      console.log("element.dataset.element", acf_parent.dataset.element);
+      var aElement = acf_root.outerHTML.replace(/^<div/, '<a').replace(/<\/div>$/, '</a>');
+      acf_root.outerHTML = aElement;
+    }
+  }
   var devMode = document.body.classList.contains("nkg-dev-mode") ? true : false;
   var cssMode = document.body.classList.contains("nkg-css-mode") ? true : false;
   var acf_parent = document.querySelector('[data-acf-mode="parent"]');
@@ -54,12 +61,15 @@ jQuery(document).ready(function ($) {
 
   if (devMode) {
     // Clean up hidden elements
-    // removeHidden();
+
+    nkg_parents.forEach(function (acf_parent) {
+      removeHidden(acf_parent);
+    });
   } else {
     // Get ACF JSON and Block.JSON
     var get_block_json = function get_block_json(acf_parent) {
-      var _acf_parent$dataset;
-      var acf_block = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset = acf_parent.dataset) === null || _acf_parent$dataset === void 0 ? void 0 : _acf_parent$dataset.block;
+      var _acf_parent$dataset2;
+      var acf_block = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset2 = acf_parent.dataset) === null || _acf_parent$dataset2 === void 0 ? void 0 : _acf_parent$dataset2.block;
       var acf_block_json = acf_block !== undefined ? JSON.parse(acf_block) : "";
 
       // console.log(
@@ -69,9 +79,9 @@ jQuery(document).ready(function ($) {
       return acf_block_json;
     }; // get_block_json();
     var get_acf_json = function get_acf_json(acf_parent) {
-      var _acf_parent$dataset2;
+      var _acf_parent$dataset3;
       var acf_root = acf_parent === null || acf_parent === void 0 ? void 0 : acf_parent.nextElementSibling;
-      var acf_data = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset2 = acf_parent.dataset) === null || _acf_parent$dataset2 === void 0 ? void 0 : _acf_parent$dataset2.acf;
+      var acf_data = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset3 = acf_parent.dataset) === null || _acf_parent$dataset3 === void 0 ? void 0 : _acf_parent$dataset3.acf;
       var acf_data_json = acf_data !== undefined ? JSON.parse(acf_data) : "";
       var acf_children = acf_root ? acf_root === null || acf_root === void 0 ? void 0 : acf_root.querySelectorAll('[data-acf-mode="child"], [data-acf-mode="repeater"]') : "";
       var fields = acf_data_json !== null && acf_data_json !== void 0 && acf_data_json.fields ? acf_data_json.fields : [];
@@ -118,9 +128,17 @@ jQuery(document).ready(function ($) {
           }
         });
         if (acf_data_json) {
+          var utilityClassesObject = fields.splice(fields.findIndex(function (obj) {
+            return obj.name === 'utility_classes';
+          }), 1)[0];
+          fields.push(utilityClassesObject);
           acf_data_json.fields = fields;
         }
-        console.log("-----> ACF JSON FOR: ".concat(acf_data_json.title), acf_data_json);
+
+        // console.log(
+        // 	`-----> ACF JSON FOR: ${acf_data_json.title}`,
+        // 	acf_data_json
+        // );
         return acf_data_json;
       }
     }; // get_acf_json(); // ONLY RUN ONCE
@@ -129,11 +147,8 @@ jQuery(document).ready(function ($) {
       var _ref;
       var whereToPutRules = acf_parent.previousElementSibling;
       var sibling = acf_parent.nextElementSibling;
-      console.log('sibling', sibling);
       var name = acf_parent.dataset.name;
-      console.log('name', name);
       var classElements = (_ref = [acf_parent]).concat.apply(_ref, _toConsumableArray(sibling.querySelectorAll("[data-classes]")));
-      console.log("classElements", classElements);
       var classList = {};
       classElements.forEach(function (element, index) {
         var _element$dataset5, _element$dataset6;
@@ -144,9 +159,6 @@ jQuery(document).ready(function ($) {
         }
         classList[name] = classes.split(" ");
       });
-
-      // console.log("classList", classList);
-
       var container = document.createElement("div");
       container.id = "css-rules-container";
       var title = document.createElement("h5");
@@ -168,7 +180,7 @@ jQuery(document).ready(function ($) {
         var rules = classList[key];
         var codeElement = document.createElement("code");
         if (!className) {
-          codeElement.textContent = "@apply ".concat(rules.join(" "));
+          codeElement.textContent = "@apply ".concat(rules.join(" "), ";");
         } else {
           codeElement.textContent = "".concat(className, " {\n\t\t\t\t@apply ").concat(rules.join(" "), ";\n\t\t\t}\n");
         }
@@ -230,14 +242,15 @@ jQuery(document).ready(function ($) {
       });
     };
     var printPhpCode = function printPhpCode(acf_root) {
-      console.log("acf_root", acf_parent);
       var container = document.createElement("code");
       container.id = "php-container";
       container.textContent = acf_root.outerHTML;
+      container.textContent = container.textContent.replace(/="php([^"]*)"/g, '="<?php $1 ?>"');
       container.textContent = container.textContent.replaceAll("<php", "<?php");
       container.textContent = container.textContent.replaceAll("<!--", "");
       container.textContent = container.textContent.replaceAll("-->", "");
       container.textContent = container.textContent.replaceAll("&quot;", "\'");
+      container.textContent = container.textContent.replaceAll("\\'", "\'");
       container.textContent = container.textContent.replace(/\s{4,}/g, "\n");
       // This was only needed if JSX is true but apparently its true by default now
       // container.textContent = container.textContent.replace(/x-data="\{(.*)\}"/g, '<?= !$is_preview ? \'x-data="{ $1 }"\' : \'\'; ?>'); 
@@ -266,9 +279,31 @@ jQuery(document).ready(function ($) {
       container.id = "acf-json-container";
       container.textContent = JSON.stringify(get_acf_json(acf_parent)), null, 3;
       var whereToPutCode = acf_parent.previousElementSibling;
-      // console.log("whereToPutCode", whereToPutCode);
       var title = document.createElement("h5");
       title.textContent = "ACF JSON";
+      whereToPutCode.appendChild(title);
+      whereToPutCode.appendChild(container);
+      var hr = document.createElement("hr");
+      whereToPutCode.appendChild(hr);
+    };
+    var _replaceATags = function _replaceATags(acf_parent, acf_root) {
+      if (acf_parent.dataset.element == 'a') {
+        console.log("element.dataset.element", element.dataset.element);
+        var aElement = acf_root.outerHTML.replace(/^<div/, '<a').replace(/<\/div>$/, '</a>');
+        acf_root.outerHTML = aElement;
+      }
+    };
+    var printScript = function printScript(scriptElement, acf_parent) {
+      if (!scriptElement) {
+        return;
+      }
+      console.log(scriptElement);
+      var container = document.createElement("code");
+      container.id = "script-container";
+      container.textContent = scriptElement.innerHTML;
+      var whereToPutCode = acf_parent.previousElementSibling;
+      var title = document.createElement("h5");
+      title.textContent = "Script";
       whereToPutCode.appendChild(title);
       whereToPutCode.appendChild(container);
       var hr = document.createElement("hr");
@@ -277,12 +312,17 @@ jQuery(document).ready(function ($) {
     console.log("Render Mode Enabled");
     nkg_parents.forEach(function (acf_parent) {
       var acf_root = acf_parent.nextElementSibling;
+      var acf_script = acf_root.nextElementSibling && acf_root.nextElementSibling.tagName.toLowerCase() == 'script' ? acf_root.nextElementSibling : false;
+      console.log("acf_script", acf_root.nextElementSibling.tagName);
+      printScript(acf_script, acf_parent);
       printBlockJson(acf_parent);
       printAcfJson(acf_parent);
+      // printScript(acf_parent);
       fixSubField(acf_parent);
       if (cssMode) {
         classExtractor(acf_parent);
       }
+      _replaceATags(acf_parent, acf_root);
       removeHidden(acf_parent);
       printPhpCode(acf_root);
     });

@@ -33,3 +33,11 @@ items-end
 items-baseline
 items-stretch
 no-underline
+cursor-pointer
+fill-base
+rotate-90
+rotate-180
+-rotate-180
+hover:fill-tertiary
+transition-all 
+duration-300

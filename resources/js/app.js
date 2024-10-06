@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+ 
 	// STYLE PREVIEW
 
 	const nkg_groups = document.querySelectorAll(".nkg-group-hidden, .nkg-hidden");
@@ -70,7 +71,11 @@ jQuery(document).ready(function ($) {
 
 	if (devMode) {
 		// Clean up hidden elements
-		// removeHidden();
+
+		nkg_parents.forEach((acf_parent) => {
+
+			removeHidden(acf_parent);
+		})
 	} else {
 		console.log("Render Mode Enabled");
 
@@ -323,7 +328,6 @@ jQuery(document).ready(function ($) {
 			container.id = "php-container";
 			container.textContent = acf_root.outerHTML;
 			container.textContent = container.textContent.replace(/="php([^"]*)"/g, '="<?php $1 ?>"');
-			console.log(container.textContent);
 			container.textContent = container.textContent.replaceAll("<php", "<?php");
 			container.textContent = container.textContent.replaceAll("<!--", "");
 			container.textContent = container.textContent.replaceAll("-->", "");
@@ -377,13 +381,35 @@ jQuery(document).ready(function ($) {
 		
 		}
 
+		function printScript(scriptElement, acf_parent) {
+			if (!scriptElement) {
+				return;
+			}
+			console.log(scriptElement);
+			const container = document.createElement("code");
+			container.id = "script-container";
+			container.textContent = scriptElement.innerHTML;
+			const whereToPutCode = acf_parent.previousElementSibling;
+			const title = document.createElement("h5");
+			title.textContent = "Script";
+			whereToPutCode.appendChild(title);
+			whereToPutCode.appendChild(container);
+			const hr = document.createElement("hr");
+			whereToPutCode.appendChild(hr);
+		}
+
 
 		nkg_parents.forEach((acf_parent) => {
 			const acf_root = acf_parent.nextElementSibling;
+			const acf_script = acf_root.nextElementSibling && acf_root.nextElementSibling.tagName.toLowerCase() == 'script' ? acf_root.nextElementSibling : false;
+			console.log("acf_script", acf_root.nextElementSibling.tagName)
+	 
 
-			 
+
+			printScript(acf_script, acf_parent)
 			printBlockJson(acf_parent);
 			printAcfJson(acf_parent);
+			// printScript(acf_parent);
 			fixSubField(acf_parent);
 		if (cssMode) {
 			classExtractor(acf_parent);
