@@ -83,8 +83,10 @@ jQuery(document).ready(function ($) {
 
 		function get_block_json(acf_parent) {
 			const acf_block = acf_parent?.dataset?.block;
+
+			console.log(acf_block);
 			const acf_block_json =
-				acf_block !== undefined ? JSON.parse(acf_block) : "";
+				acf_block !== undefined ? JSON.parse(acf_parent.dataset.block) : "";
 
 			// console.log(
 			// 	`-----> BLOCK.JSON FOR: ${acf_block_json.title}`,
@@ -99,9 +101,20 @@ jQuery(document).ready(function ($) {
 
 			const acf_root = acf_parent?.nextElementSibling;
 			const acf_data = acf_parent?.dataset?.acf;
-
+			if (!acf_data){
+				return;
+			}
+			console.log('acf_data', acf_data)
+			
+			const acf_parent_name = acf_parent?.dataset?.name;
+	 
+			const acf_parent_title = acf_parent?.dataset?.title;
+			
+			
+			
 			const acf_data_json = acf_data !== undefined ? JSON.parse(acf_data) : "";
-
+			const acf_parent_key = acf_data_json.key;
+			
 			const acf_children = acf_root
 				? acf_root?.querySelectorAll(
 						'[data-acf-mode="child"], [data-acf-mode="repeater"]'
@@ -110,75 +123,90 @@ jQuery(document).ready(function ($) {
 
 			const fields = acf_data_json?.fields ? acf_data_json.fields : [];
 
-			if (acf_children) {
-				acf_children.forEach(function (element, index) {
-					if (element?.dataset?.acf) {
-						if (element?.dataset?.acfMode === "repeater") {
-							const repeaterField = JSON.parse(element.dataset.acf);
-							const nextSibling = element.nextElementSibling;
-							const siblings = element.parentNode.children;
-							for (let i = 0; i < siblings.length; i++) {
-								const sibling = siblings[i];
-								if (sibling !== nextSibling) {
-									// Turn off ACF mode on clone children
-									const acf_clone_children = sibling.querySelectorAll(
-										'[data-acf-mode="child"]'
-									);
-									acf_clone_children.forEach(function (
-										cloneChildElement,
-										index
-									) {
-										cloneChildElement.dataset.acfMode = "none";
-									});
-								}
-							}
+		  
 
-							const acf_repeater_children =
-								element?.nextElementSibling?.querySelectorAll(
-									'[data-acf-mode="child"]'
-								);
+if (acf_children) {
+    const labelCount = {}; // Object to keep track of label counts
 
-							const acf_repeater_children_fields = [];
-							if (acf_repeater_children) {
-								acf_repeater_children.forEach(function (childElement, index) {
-									if (childElement?.dataset?.acf) {
-										acf_repeater_children_fields.push(
-											JSON.parse(childElement.dataset.acf)
-										);
-										childElement.dataset.acf = ""; // Removing them so they don't get added to the parent
-										childElement.dataset.acfMode = "none";
-									}
-								});
-								repeaterField.sub_fields = acf_repeater_children_fields;
-								fields.push(repeaterField);
-							}
-						} else {
-							if (
-								element?.dataset?.acfMode !== "none" &&
-								element?.dataset?.acf
-							) {
-								
-								fields.push(JSON.parse(element.dataset.acf));
-							}
-						}
-					}
-				});
+    // Function to process the child field and update accordingly
+    function processChildField(childElement, childField, parentKey, parentLabel, parentName, index) {
+        if (childElement.dataset.acfId == 'inherit') {
+            console.log('inherit found');
+            childField.key = parentKey + '_' + index;
 
-				if (acf_data_json) {
-					const utilityClassesObject = fields.splice(fields.findIndex(obj => obj.name === 'utility_classes'), 1)[0];
-					fields.push(utilityClassesObject);
-
-
-					acf_data_json.fields = fields;
-			
-				}
-
-				// console.log(
-				// 	`-----> ACF JSON FOR: ${acf_data_json.title}`,
-				// 	acf_data_json
-				// );
-				return acf_data_json;
+			if (parentLabel) {
+				childField.label = parentLabel + ' ' + childField.label;
 			}
+
+            // Manage the label count for the same label
+            if (labelCount[childField.label]) {
+                labelCount[childField.label] += 1; // Increment count
+				childField.name = childField.name + '-' + labelCount[childField.label]; // Append the count to the name if you want unique CSS classes
+                childField.label += ' ' + labelCount[childField.label]; // Append the count to the label
+            } else {
+                labelCount[childField.label] = 1; // Initialize count
+            }
+
+            childField.name = parentName + '__' + childField.name;
+            
+			childElement.dataset.name = childField.name;
+        }
+        return childField;
+    }
+
+    acf_children.forEach(function (element, index) {
+        if (element?.dataset?.acf) {
+
+            if (element?.dataset?.acfMode === "repeater") {
+                const repeaterField = JSON.parse(element.dataset.acf);
+                console.log('repeaterField', repeaterField);
+                const repeaterKey = repeaterField.key;
+                const repeaterSingleTitle = element.dataset.acfSingleTitle;
+
+                console.log('repeaterSingleTitle', repeaterSingleTitle);	
+
+                const acf_repeater_children =
+                    element?.nextElementSibling?.querySelectorAll(
+                        '[data-acf-mode="child"]'
+                    );
+
+                const acf_repeater_children_fields = [];
+                if (acf_repeater_children) {
+                    acf_repeater_children.forEach(function (childElement, index) {
+                        if (childElement?.dataset?.acf) {
+                            const childField = JSON.parse(childElement.dataset.acf);
+                            const processedChildField = processChildField(childElement, childField, repeaterKey, repeaterSingleTitle, acf_parent_name, index);
+                            acf_repeater_children_fields.push(processedChildField);
+                            childElement.dataset.acf = ""; // Removing them so they don't get added to the parent
+                            childElement.dataset.acfMode = "none";
+                        }
+                    });
+                    repeaterField.sub_fields = acf_repeater_children_fields;
+                    fields.push(repeaterField);
+                    console.log('repeaterField', repeaterField);
+                }
+            } else {
+                if (
+                    element?.dataset?.acfMode !== "none" &&
+                    element?.dataset?.acf
+                ) {
+                    const childField = JSON.parse(element.dataset.acf);
+                    const processedChildField = processChildField(element, childField, acf_parent_key, false, acf_parent_name, index);
+                    fields.push(processedChildField);
+                }
+            }
+        }
+    });
+
+    if (acf_data_json) {
+        const utilityClassesObject = fields.splice(fields.findIndex(obj => obj.name === 'utility_classes'), 1)[0];
+        fields.push(utilityClassesObject);
+        acf_data_json.fields = fields;
+    }
+
+    return acf_data_json;
+}
+
 		}
 		// get_acf_json(); // ONLY RUN ONCE
 
@@ -260,6 +288,7 @@ jQuery(document).ready(function ($) {
 
 		function fixSubField(acf_parent) {
 			const repeaters = acf_parent?.nextElementSibling?.querySelectorAll('[data-acf-mode="repeater"]');
+			console.log('repeaters',repeaters);
 
 			// Change get_field to get_sub_field
 			repeaters.forEach(function (repeaterElement) {
@@ -291,9 +320,10 @@ jQuery(document).ready(function ($) {
 			newText,
 			commentsToText = false
 		) {
+			console.log("replaceTextInComments", element, oldText, newText, commentsToText);
 			// Get all text nodes within the element and its descendants
 			const textNodes = [];
-			let elementNodes = element.parentNode.querySelectorAll(
+			let elementNodes = element.querySelectorAll(
 				":not(script):not(style)"
 			);
 
@@ -402,7 +432,7 @@ jQuery(document).ready(function ($) {
 		nkg_parents.forEach((acf_parent) => {
 			const acf_root = acf_parent.nextElementSibling;
 			const acf_script = acf_root.nextElementSibling && acf_root.nextElementSibling.tagName.toLowerCase() == 'script' ? acf_root.nextElementSibling : false;
-			console.log("acf_script", acf_root.nextElementSibling.tagName)
+			// console.log("acf_script", acf_root.nextElementSibling.tagName)
 	 
 
 

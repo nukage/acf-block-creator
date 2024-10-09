@@ -1,5 +1,4 @@
 <?php
-
 add_action('acf/include_fields', function () {
     if (! function_exists('acf_add_local_field_group')) {
         return;
@@ -2191,13 +2190,13 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
                                     'id' => '',
                                 ),
                                 'choices' => array(
-                                    '1/8' => '1/8',
-                                    '1/16' => '1/16',
                                     '1/12' => '1/12',
-                                    '1/5' => '1/5',
-                                    '1/4' => '1/4',
-                                    '1/3' => '1/3',
+                                    '1/16' => '1/16',
                                     '1/2' => '1/2',
+                                    '1/3' => '1/3',
+                                    '1/4' => '1/4',
+                                    '1/5' => '1/5',
+                                    '1/8' => '1/8',
                                     '3/4' => '3/4',
                                     'full' => 'Full',
                                     'screen' => 'Screen',
@@ -2564,6 +2563,7 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
                                     'default' => 'Default',
                                     'secondary' => 'Inter',
                                     'primary' => 'Saira',
+                                    'yanone-kaffeesatz' => 'Yanone Kaffeesatz',
                                 ),
                                 'default_value' => false,
                                 'return_format' => 'value',
@@ -2655,15 +2655,15 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
                                 ),
                                 'choices' => array(
                                     'default' => 'Default',
-                                    'thin' => 'Thin',
-                                    'extra-light' => 'Extra-light',
-                                    'light' => 'Light',
-                                    'regular' => 'Regular',
-                                    'medium' => 'Medium',
-                                    'semi-bold' => 'Semi-bold',
+                                    'black' => 'Black',
                                     'bold' => 'Bold',
                                     'extra-bold' => 'Extra-bold',
-                                    'black' => 'Black',
+                                    'extra-light' => 'Extra-light',
+                                    'light' => 'Light',
+                                    'medium' => 'Medium',
+                                    'regular' => 'Regular',
+                                    'semi-bold' => 'Semi-bold',
+                                    'thin' => 'Thin',
                                 ),
                                 'default_value' => false,
                                 'return_format' => 'value',
@@ -3044,5 +3044,15 @@ Render - This shows the HTML with the extra PHP in comments, and removes all of 
         'active' => true,
         'description' => '',
         'show_in_rest' => 0,
+    ));
+});
+
+add_action('acf/init', function () {
+    acf_add_options_page(array(
+        'page_title' => 'ACF Blockmaker Settings',
+        'menu_slug' => 'acf-blockmaker-settings',
+        'parent_slug' => 'options-general.php',
+        'position' => '',
+        'redirect' => false,
     ));
 });

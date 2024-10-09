@@ -42,6 +42,7 @@ $acf_fields = false;
 
 if ($acf_mode == 'parent') {
 
+
     $acf_category = get_field('acf_category') ?  get_field('acf_category') : 'nkg-blocks'; // get_field('acf_category'); Need to add this as option
     $acf_icon = get_field('acf_icon');
     $acf_supports = get_field('acf_supports');
@@ -98,12 +99,14 @@ if ($acf_mode == 'parent') {
 
     );
 
+    $sanitized_svg = htmlspecialchars(str_replace('"', "'", $acf_icon), ENT_QUOTES, 'UTF-8');
+
     $block_json = array(
         'name' => 'acf/' . $acf_name,
         'title' => $acf_title,
         'description' => $acf_description,
         'category' => $acf_category,
-        'icon' => $acf_icon,
+        'icon' => $sanitized_svg,
         'acf' => array(
             'mode' => 'preview',
             'renderTemplate' => $acf_name . '.php',
@@ -202,6 +205,7 @@ $blockClass = isset($block['className']) ? $block['className'] : '';
 $classes = ' ';
 $innerStyles = '';
 $innerClasses = '';
+$theme_classes = '';
 // ADD TYPICAL BLOCK CLASSES TO CLASS LIST
 $innerClasses .= $acf_name ?  $acf_name . ' ' : '';
 $innerClasses .= ' ' . $align_class;
@@ -209,7 +213,7 @@ $innerClasses .= ' ' . $align_class;
 // INIT STYLE BUILDER
 $style_builder = get_field('style_builder') ? style_builder(get_field('style_builder')) : '';
 $innerClasses .=  isset($style_builder['wp_classes']) ? ' ' . $style_builder['wp_classes'] : '';
-$theme_classes = $style_builder &&  $style_builder['classes'] ?  $style_builder['classes'] . ' ' : '';
+
 
 
 
@@ -236,7 +240,7 @@ $repeater = (get_field('acf_mode') == 'repeater' || get_field('acf_mode') == "qu
 
 
 // $innerClasses .= 'blockid-' . $id  . ' ';
-$theme_classes .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
+// $theme_classes .= get_field('grid_columns') ? 'grid-cols-' .   get_field('grid_columns') . ' ' : '';
 $theme_classes .= get_field('container_type') && get_field('container_type') !== 'default' ?  get_field('container_type') . ' ' : '';
 $theme_classes .= get_field('flex_direction') ?  get_field('flex_direction') . ' ' : '';
 $theme_classes .= get_field('flex_justification') ?  get_field('flex_justification') . ' ' : '';
@@ -261,7 +265,9 @@ if (get_field('container_type') == 'grid') {
     }
 }
 // Add them to the tag
-$theme_classes .= $gridClasses;
+$theme_classes .= $gridClasses . ' ';
+// Theme classes come after grid classes
+$theme_classes .= $style_builder &&  $style_builder['classes'] ?  $style_builder['classes'] . ' ' : '';
 $innerStyles .= $gridStyles;
 
 
@@ -308,6 +314,7 @@ $openingTag = '<div class="nkg-group-hidden" id="' . $id . '" ';
 $openingTag .=  $acf_mode ? 'data-acf-mode="' . trim($acf_mode) . '"' : '';
 $openingTag .= $acf_name ? 'data-name="' . trim($acf_name) . '"' : '';
 $openingTag .= $acf_mode == 'link' ? 'data-element="a" ' : 'data-element="div" ';
+$openingTag .= $acf_mode == 'repeater' && $acf_single_title ? 'data-acf-single-title="' . trim($acf_single_title) . '" ' : '';
 
 $openingTag .= $attributes ? "data-attributes='" . json_encode($attributes) . "' " : '';
 $openingTag .= $acf_fields ? "data-acf='" . json_encode($acf_fields) . "'" : '';
@@ -322,6 +329,8 @@ $openingTag .= 'style="display:none;">';
 // var_dump($innerClasses);
 // echo '</pre>';
 
+
+
 if (!$dev && $acf_mode == 'parent') : ?>
 
     <h4>Block: <?php echo $acf_name; ?>.php</h4>
@@ -330,7 +339,7 @@ if (!$dev && $acf_mode == 'parent') : ?>
         </pre>
 <?php endif;
 
-
+// echo $acf_mode == 'parent' ? 'parent' : 'child';
 
 echo $openingTag . '</div>';
 
@@ -357,6 +366,7 @@ echo $openingTag . '</div>';
     <?php $repeater = 1; // If not dev mode, just one instance of repeater HTML 
     ?>
 <?php endif; ?>
+
 <?php for ($i = 0; $i < $repeater; $i++) { ?>
 
     <?php

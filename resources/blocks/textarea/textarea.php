@@ -13,7 +13,7 @@ $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id
 // ACF FIELDS SETUP
 $acf_name = get_field('acf_name');
 $acf_mode = get_field('acf_mode');
-$acf_id = get_field('acf_id');
+$acf_id = get_field('acf_id') ? 'field_' . get_field('acf_id') : '';
 $acf_instructions = get_field('acf_instructions');
 $acf_title = get_field('acf_title');
 $acf_fields = '';
@@ -89,6 +89,9 @@ $hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
 $hidden_tag_attrs['data-name'] = $acf_name;
 $hidden_tag_attrs['data-classes'] = isset($theme_classes) && $theme_classes ? $theme_classes : '';
 $hidden_tag_attrs['data-attributes'] = isset($attributes) ?  json_encode($attributes) : '';
+if (!$acf_id && $acf_mode == 'child') {
+    $hidden_tag_attrs['data-acf-id'] = 'inherit';
+}
 
 // Add Hidden Tag to DOM
 echo opening_tag('div', $hidden_tag_attrs) . '</div>';

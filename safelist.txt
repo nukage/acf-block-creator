@@ -41,3 +41,10 @@ rotate-180
 hover:fill-tertiary
 transition-all 
 duration-300
+max-md:grid-cols-1
+md:grid-cols-2
+max-md:grid-cols-1 
+md:odd:[grid-template-areas:'content_image'] 
+md:even:[grid-template-areas:'image_content']
+md:[grid-area:content]
+md:[grid-area:image]

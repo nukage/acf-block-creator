@@ -33,7 +33,7 @@ if (get_field('acf_mode') == 'child') {
             'class' => '',
             'id' => '',
         ),
-        'return_format' => 'array',
+        'return_format' => 'id',
         'library' => 'all',
         'min_width' => '',
         'min_height' => '',
