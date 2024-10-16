@@ -372,7 +372,15 @@ echo $openingTag . '</div>';
     <?php
     echo '<InnerBlocks allowedBlocks="' . esc_attr(wp_json_encode($allowed_blocks)) . '" class="' . trim($innerClasses) . '"  />'; ?>
     <?php if (($acf_mode == 'repeater' || $acf_mode == 'query')  && !$dev) : ?>
-        <!-- <php  endwhile; endif;  <?= $acf_mode = 'query' ? 'wp_reset_postdata();' : '' ?> ?>-->
+        <!-- <php  endwhile; endif;  <?= $acf_mode == 'query' ? 'wp_reset_postdata();' : '' ?> ?>-->
     <?php endif; ?>
 <?php }
-echo $acf_script ? '<script>' . $acf_script . '</script>' : '';
+
+
+if ($acf_script) : ?>
+    <script>
+        <?= $dev ? ' setTimeout(() => {' : '' ?>
+        <?php echo $acf_script; ?>
+        <?= $dev ? '}, 100)' : '' ?>
+    </script>
+<?php endif;
