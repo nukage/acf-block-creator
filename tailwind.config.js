@@ -1,5 +1,5 @@
-// const theme = require("../../themes/qntm-zero/theme.json"); // Change to the location of your theme.json and remove the line below
-const theme = require("./theme.json");
+const theme = require("../../themes/qntm-zero/theme.json"); // Change to the location of your theme.json and remove the line below
+// const theme = require("./theme.json");
 const tailthemer = require("@nukage/tailthemer");
 // const qntmMapper = require("./qntm-modules/tailwind-mapper.js");
 // const plugin = require("tailwindcss/plugin");
@@ -18,7 +18,8 @@ module.exports = {
         './**/*.php',
         './resources/css/*.css',
         './resources/js/*.js',
-        './safelist.txt'
+        './safelist.txt',
+		'../tailwind-drawer/tailwind-classes.txt'
     ],
 	safelist: [
 		'text-2xl',

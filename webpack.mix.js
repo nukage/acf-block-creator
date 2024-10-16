@@ -59,13 +59,13 @@ const blockPath = 'resources/blocks' // the path you want to discover
 // 	require("postcss-rem-to-pixel")(options),
 // ]);
 
-// mix.browserSync({
-//     proxy: 'http://powder-tailpress.loc',
-//     host: 'powder-tailpress.loc',
-//     open: 'external',
-//     port: 8000,
-//     files: ['*.php', './css/app.css', './js/app.js'],
-// });
+mix.browserSync({
+    proxy: 'http://powder-tailpress.loc',
+    host: 'powder-tailpress.loc',
+    open: 'external',
+    port: 8000,
+    files: ['*.php', './css/app.css', './js/app.js'],
+});
 
 if (mix.inProduction()) {
     mix.version();

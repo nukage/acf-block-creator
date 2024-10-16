@@ -70,7 +70,8 @@ jQuery(document).ready(function ($) {
     var get_block_json = function get_block_json(acf_parent) {
       var _acf_parent$dataset2;
       var acf_block = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset2 = acf_parent.dataset) === null || _acf_parent$dataset2 === void 0 ? void 0 : _acf_parent$dataset2.block;
-      var acf_block_json = acf_block !== undefined ? JSON.parse(acf_block) : "";
+      console.log(acf_block);
+      var acf_block_json = acf_block !== undefined ? JSON.parse(acf_parent.dataset.block) : "";
 
       // console.log(
       // 	`-----> BLOCK.JSON FOR: ${acf_block_json.title}`,
@@ -79,13 +80,44 @@ jQuery(document).ready(function ($) {
       return acf_block_json;
     }; // get_block_json();
     var get_acf_json = function get_acf_json(acf_parent) {
-      var _acf_parent$dataset3;
+      var _acf_parent$dataset3, _acf_parent$dataset4, _acf_parent$dataset5;
       var acf_root = acf_parent === null || acf_parent === void 0 ? void 0 : acf_parent.nextElementSibling;
       var acf_data = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset3 = acf_parent.dataset) === null || _acf_parent$dataset3 === void 0 ? void 0 : _acf_parent$dataset3.acf;
+      if (!acf_data) {
+        return;
+      }
+      console.log('acf_data', acf_data);
+      var acf_parent_name = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset4 = acf_parent.dataset) === null || _acf_parent$dataset4 === void 0 ? void 0 : _acf_parent$dataset4.name;
+      var acf_parent_title = acf_parent === null || acf_parent === void 0 || (_acf_parent$dataset5 = acf_parent.dataset) === null || _acf_parent$dataset5 === void 0 ? void 0 : _acf_parent$dataset5.title;
       var acf_data_json = acf_data !== undefined ? JSON.parse(acf_data) : "";
+      var acf_parent_key = acf_data_json.key;
       var acf_children = acf_root ? acf_root === null || acf_root === void 0 ? void 0 : acf_root.querySelectorAll('[data-acf-mode="child"], [data-acf-mode="repeater"]') : "";
       var fields = acf_data_json !== null && acf_data_json !== void 0 && acf_data_json.fields ? acf_data_json.fields : [];
       if (acf_children) {
+        // Object to keep track of label counts
+        // Function to process the child field and update accordingly
+        var processChildField = function processChildField(childElement, childField, parentKey, parentLabel, parentName, index) {
+          if (childElement.dataset.acfId == 'inherit') {
+            console.log('inherit found');
+            childField.key = parentKey + '_' + index;
+            if (parentLabel) {
+              childField.label = parentLabel + ' ' + childField.label;
+            }
+
+            // Manage the label count for the same label
+            if (labelCount[childField.label]) {
+              labelCount[childField.label] += 1; // Increment count
+              childField.name = childField.name + '-' + labelCount[childField.label]; // Append the count to the name if you want unique CSS classes
+              childField.label += ' ' + labelCount[childField.label]; // Append the count to the label
+            } else {
+              labelCount[childField.label] = 1; // Initialize count
+            }
+            childField.name = parentName + '__' + childField.name;
+            childElement.dataset.name = childField.name;
+          }
+          return childField;
+        };
+        var labelCount = {};
         acf_children.forEach(function (element, index) {
           var _element$dataset;
           if (element !== null && element !== void 0 && (_element$dataset = element.dataset) !== null && _element$dataset !== void 0 && _element$dataset.acf) {
@@ -93,36 +125,33 @@ jQuery(document).ready(function ($) {
             if ((element === null || element === void 0 || (_element$dataset2 = element.dataset) === null || _element$dataset2 === void 0 ? void 0 : _element$dataset2.acfMode) === "repeater") {
               var _element$nextElementS;
               var repeaterField = JSON.parse(element.dataset.acf);
-              var nextSibling = element.nextElementSibling;
-              var siblings = element.parentNode.children;
-              for (var i = 0; i < siblings.length; i++) {
-                var sibling = siblings[i];
-                if (sibling !== nextSibling) {
-                  // Turn off ACF mode on clone children
-                  var acf_clone_children = sibling.querySelectorAll('[data-acf-mode="child"]');
-                  acf_clone_children.forEach(function (cloneChildElement, index) {
-                    cloneChildElement.dataset.acfMode = "none";
-                  });
-                }
-              }
+              console.log('repeaterField', repeaterField);
+              var repeaterKey = repeaterField.key;
+              var repeaterSingleTitle = element.dataset.acfSingleTitle;
+              console.log('repeaterSingleTitle', repeaterSingleTitle);
               var acf_repeater_children = element === null || element === void 0 || (_element$nextElementS = element.nextElementSibling) === null || _element$nextElementS === void 0 ? void 0 : _element$nextElementS.querySelectorAll('[data-acf-mode="child"]');
               var acf_repeater_children_fields = [];
               if (acf_repeater_children) {
                 acf_repeater_children.forEach(function (childElement, index) {
                   var _childElement$dataset;
                   if (childElement !== null && childElement !== void 0 && (_childElement$dataset = childElement.dataset) !== null && _childElement$dataset !== void 0 && _childElement$dataset.acf) {
-                    acf_repeater_children_fields.push(JSON.parse(childElement.dataset.acf));
+                    var childField = JSON.parse(childElement.dataset.acf);
+                    var processedChildField = processChildField(childElement, childField, repeaterKey, repeaterSingleTitle, acf_parent_name, index);
+                    acf_repeater_children_fields.push(processedChildField);
                     childElement.dataset.acf = ""; // Removing them so they don't get added to the parent
                     childElement.dataset.acfMode = "none";
                   }
                 });
                 repeaterField.sub_fields = acf_repeater_children_fields;
                 fields.push(repeaterField);
+                console.log('repeaterField', repeaterField);
               }
             } else {
               var _element$dataset3, _element$dataset4;
               if ((element === null || element === void 0 || (_element$dataset3 = element.dataset) === null || _element$dataset3 === void 0 ? void 0 : _element$dataset3.acfMode) !== "none" && element !== null && element !== void 0 && (_element$dataset4 = element.dataset) !== null && _element$dataset4 !== void 0 && _element$dataset4.acf) {
-                fields.push(JSON.parse(element.dataset.acf));
+                var childField = JSON.parse(element.dataset.acf);
+                var processedChildField = processChildField(element, childField, acf_parent_key, false, acf_parent_name, index);
+                fields.push(processedChildField);
               }
             }
           }
@@ -134,11 +163,6 @@ jQuery(document).ready(function ($) {
           fields.push(utilityClassesObject);
           acf_data_json.fields = fields;
         }
-
-        // console.log(
-        // 	`-----> ACF JSON FOR: ${acf_data_json.title}`,
-        // 	acf_data_json
-        // );
         return acf_data_json;
       }
     }; // get_acf_json(); // ONLY RUN ONCE
@@ -196,6 +220,7 @@ jQuery(document).ready(function ($) {
     var fixSubField = function fixSubField(acf_parent) {
       var _acf_parent$nextEleme2;
       var repeaters = acf_parent === null || acf_parent === void 0 || (_acf_parent$nextEleme2 = acf_parent.nextElementSibling) === null || _acf_parent$nextEleme2 === void 0 ? void 0 : _acf_parent$nextEleme2.querySelectorAll('[data-acf-mode="repeater"]');
+      console.log('repeaters', repeaters);
 
       // Change get_field to get_sub_field
       repeaters.forEach(function (repeaterElement) {
@@ -216,9 +241,10 @@ jQuery(document).ready(function ($) {
     // });
     var replaceTextInComments = function replaceTextInComments(element, oldText, newText) {
       var commentsToText = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
+      console.log("replaceTextInComments", element, oldText, newText, commentsToText);
       // Get all text nodes within the element and its descendants
       var textNodes = [];
-      var elementNodes = element.parentNode.querySelectorAll(":not(script):not(style)");
+      var elementNodes = element.querySelectorAll(":not(script):not(style)");
       elementNodes = elementNodes.forEach(function (node) {
         if (node.nodeType === Node.TEXT_NODE) {
           textNodes.push(node);
@@ -313,7 +339,8 @@ jQuery(document).ready(function ($) {
     nkg_parents.forEach(function (acf_parent) {
       var acf_root = acf_parent.nextElementSibling;
       var acf_script = acf_root.nextElementSibling && acf_root.nextElementSibling.tagName.toLowerCase() == 'script' ? acf_root.nextElementSibling : false;
-      console.log("acf_script", acf_root.nextElementSibling.tagName);
+      // console.log("acf_script", acf_root.nextElementSibling.tagName)
+
       printScript(acf_script, acf_parent);
       printBlockJson(acf_parent);
       printAcfJson(acf_parent);
