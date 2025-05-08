@@ -60,8 +60,8 @@ const blockPath = 'resources/blocks' // the path you want to discover
 // ]);
 
 mix.browserSync({
-    proxy: 'http://powder-tailpress.loc',
-    host: 'powder-tailpress.loc',
+    proxy: 'http://qntm-zero.loc',
+    host: 'qntm-zero.loc',
     open: 'external',
     port: 8000,
     files: ['*.php', './css/app.css', './js/app.js'],

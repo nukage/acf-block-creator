@@ -129,7 +129,7 @@ if (acf_children) {
     const labelCount = {}; // Object to keep track of label counts
 
     // Function to process the child field and update accordingly
-    function processChildField(childElement, childField, parentKey, parentLabel, parentName, index) {
+    function processChildField(childElement, childField, parentKey, parentLabel, parentName, index, namesep = '-') {
         if (childElement.dataset.acfId == 'inherit') {
             console.log('inherit found');
             childField.key = parentKey + '_' + index;
@@ -137,6 +137,10 @@ if (acf_children) {
 			if (parentLabel) {
 				childField.label = parentLabel + ' ' + childField.label;
 			}
+
+			// if (parentName && parentName!== 'false') {
+			// 	childField.name = parentName + '-' + childField.name;
+			// }
 
             // Manage the label count for the same label
             if (labelCount[childField.label]) {
@@ -147,9 +151,15 @@ if (acf_children) {
                 labelCount[childField.label] = 1; // Initialize count
             }
 
-            childField.name = parentName + '__' + childField.name;
+			if (parentName){
+				childField.name = parentName + namesep + childField.name;
+			}
             
+			childElement.dataset.nameOrig = childElement.dataset.name;
 			childElement.dataset.name = childField.name;
+			if (cssMode){
+				// childElement.classList = childField.name;
+			}
         }
         return childField;
     }
@@ -162,6 +172,7 @@ if (acf_children) {
                 console.log('repeaterField', repeaterField);
                 const repeaterKey = repeaterField.key;
                 const repeaterSingleTitle = element.dataset.acfSingleTitle;
+				const repeaterName = repeaterField.name;
 
                 console.log('repeaterSingleTitle', repeaterSingleTitle);	
 
@@ -175,7 +186,7 @@ if (acf_children) {
                     acf_repeater_children.forEach(function (childElement, index) {
                         if (childElement?.dataset?.acf) {
                             const childField = JSON.parse(childElement.dataset.acf);
-                            const processedChildField = processChildField(childElement, childField, repeaterKey, repeaterSingleTitle, acf_parent_name, index);
+                            const processedChildField = processChildField(childElement, childField, repeaterKey, repeaterSingleTitle, repeaterName, index);
                             acf_repeater_children_fields.push(processedChildField);
                             childElement.dataset.acf = ""; // Removing them so they don't get added to the parent
                             childElement.dataset.acfMode = "none";
@@ -191,7 +202,7 @@ if (acf_children) {
                     element?.dataset?.acf
                 ) {
                     const childField = JSON.parse(element.dataset.acf);
-                    const processedChildField = processChildField(element, childField, acf_parent_key, false, acf_parent_name, index);
+                    const processedChildField = processChildField(element, childField, acf_parent_key, false, acf_parent_name, index, '__');
                     fields.push(processedChildField);
                 }
             }
@@ -285,12 +296,22 @@ if (acf_children) {
 
 			whereToPutRules.appendChild(container);
 		}
-
+		function updateInheriterNames(acf_parent) {
+			const inheriterElements = acf_parent?.nextElementSibling?.querySelectorAll('[data-acf-id="inherit"]');
+			inheriterElements.forEach(function (element) {
+				const name = element.dataset.nameOrig ?? '';
+				const newName = element.dataset.name ?? '';
+				if (name && newName) {
+					const nextSibling = element.nextSibling.nextSibling;  
+					if (nextSibling && nextSibling.nodeType === 8) {
+						console.log('next sibling is a comment node', nextSibling);
+						nextSibling.nodeValue = nextSibling.nodeValue.replaceAll(name, newName);
+					}
+				}
+			})
+		}
 		function fixSubField(acf_parent) {
 			const repeaters = acf_parent?.nextElementSibling?.querySelectorAll('[data-acf-mode="repeater"]');
-			console.log('repeaters',repeaters);
-
-			// Change get_field to get_sub_field
 			repeaters.forEach(function (repeaterElement) {
 				replaceTextInComments(
 					repeaterElement.nextElementSibling,
@@ -320,6 +341,7 @@ if (acf_children) {
 			newText,
 			commentsToText = false
 		) {
+			if (!element) return;
 			console.log("replaceTextInComments", element, oldText, newText, commentsToText);
 			// Get all text nodes within the element and its descendants
 			const textNodes = [];
@@ -334,6 +356,8 @@ if (acf_children) {
 					textNodes.push(...node.childNodes);
 				}
 			});
+
+			console.log("textNodes", textNodes);
 
 			// Iterate over each text node
 			textNodes.forEach((textNode) => {
@@ -440,6 +464,7 @@ if (acf_children) {
 			printBlockJson(acf_parent);
 			printAcfJson(acf_parent);
 			// printScript(acf_parent);
+			updateInheriterNames(acf_parent);
 			fixSubField(acf_parent);
 		if (cssMode) {
 			classExtractor(acf_parent);
@@ -447,7 +472,13 @@ if (acf_children) {
 			replaceATags(acf_parent, acf_root);
 			removeHidden(acf_parent);
 			printPhpCode(acf_root);
+
+ 
+		 
+			$(acf_root).hide();
+
 		});
+
 
 
 	}

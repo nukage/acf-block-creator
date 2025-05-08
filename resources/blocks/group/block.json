@@ -20,5 +20,8 @@
         "align": true,
         "jsx": true
     },
-    "transforms": {}
+    "transforms": {},
+    "providesContext": {
+        "acf/fields": "data"
+    }
 }

@@ -504,11 +504,7 @@
 					"text": "var(--wp--preset--color--primary)"
 				},
 				"elements": {
-					"link": {
-						"color": {
-							"text": "var(--wp--preset--color--primary)"
-						}
-					}
+					"link": {}
 				},
 				"typography": {
 					"fontFamily": "var(--wp--preset--font-family--saira)"

@@ -727,6 +727,10 @@
 	--tw-rotate: 180deg;
 	transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
+.rotate-45 {
+	--tw-rotate: 45deg;
+	transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
 .rotate-90 {
 	--tw-rotate: 90deg;
 	transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
@@ -1318,6 +1322,16 @@
 }
 .rounded-tr-xl {
 	border-top-right-radius: 0.75rem;
+}
+.border-4 {
+	border-width: 4px;
+}
+.border-contrast {
+	--tw-border-opacity: 1;
+	border-color: rgb(37 70 74 / var(--tw-border-opacity));
+}
+.border-opacity-80 {
+	--tw-border-opacity: 0.8;
 }
 .bg-alert {
 	background-color: #e33434;
@@ -2083,6 +2097,9 @@ img {
 .wp-block-acf-nkg-group .block-editor-block-list__layout {
 	height: 100%;
 }
+.wp-block-acf-nkg-group .block-library-block__reusable-block-container {
+	height: auto;
+}
 .wp-block-acf-nkg-group .nkg-hidden + a {
 	pointer-events: none;
 	text-decoration-line: none;
@@ -2090,8 +2107,30 @@ img {
 	--tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
 	box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
+.nkg-block-code {
+	overflow-x: hidden;
+	border-radius: 0.5rem;
+	border-width: 4px;
+	border-color: rgb(37 70 74 / var(--tw-border-opacity));
+	--tw-border-opacity: 0.8;
+	background-color: #f5f5f5;
+	padding: clamp(15px, 2vw, 20px);
+}
+/* a:where(:not(.wp-element-button)) {
+	color: revert;
+} */
+a:active,
+a:hover {
+	color: unset;
+}
 .hover\:border-2:hover {
 	border-width: 2px;
+}
+.hover\:bg-secondary:hover {
+	background-color: #00856A;
+}
+.hover\:bg-tertiary:hover {
+	background-color: #FFCC1B;
 }
 .hover\:fill-tertiary:hover {
 	fill: #FFCC1B;
@@ -2114,14 +2153,8 @@ img {
 	.md\:odd\:\[grid-template-areas\:\'content_image\'\]:nth-child(odd) {
 		grid-template-areas: 'content image';
 	}
-	.md\:odd\:\[grid-template-areas\:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'content_image\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'\]:nth-child(odd) {
-		grid-template-areas: \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'content image\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\';
-	}
 	.md\:even\:\[grid-template-areas\:\'image_content\'\]:nth-child(even) {
 		grid-template-areas: 'image content';
-	}
-	.md\:even\:\[grid-template-areas\:\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'image_content\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'\]:nth-child(even) {
-		grid-template-areas: \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\'image content\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\';
 	}
 }
 

@@ -1,5 +1,7 @@
 <?php
 
+
+
 $dev = !get_field('nkg_render_mode', 'option');
 $dev = $is_preview ? true  : $dev;
 $css_mode =  !$dev && get_field('css_mode', 'option') ? get_field('css_mode', 'option') : '';
@@ -7,15 +9,30 @@ $css_mode =  !$dev && get_field('css_mode', 'option') ? get_field('css_mode', 'o
 $blockName = str_replace('acf/', '', $block['name']);
 $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id'];
 
-
-
-// ACF FIELDS SETUP
+// NAME SETUP
 $acf_name = get_field('acf_name');
+
+
 $acf_mode = get_field('acf_mode');
 $acf_id = get_field('acf_id');
 $acf_instructions = get_field('acf_instructions');
 $acf_title = get_field('acf_title');
 $acf_fields = '';
+
+
+
+// This doesn't work if the block is inside of a synced pattern, when this is on the front-end,
+// making the context thing kind of useless...
+// if ($acf_parent_name && !$acf_id && $acf_mode == 'child') {
+//     if (strpos($acf_parent_name, '__') !== false) {
+//         $acf_name = $acf_parent_name . '-' . $acf_name;
+//     } else {
+//         $acf_name = $acf_parent_name . '__' . $acf_name;
+//     }
+// }
+// echo 'NAME:';
+// echo $acf_name;
+// var_dump($context);
 
 if (get_field('acf_mode') == 'child') {
     $acf_fields =  array(
@@ -75,12 +92,18 @@ $hidden_tag_attrs['data-acf'] = htmlspecialchars(json_encode($acf_fields));
 $hidden_tag_attrs['data-name'] = $acf_name;
 $hidden_tag_attrs['data-classes'] = isset($theme_classes) && $theme_classes ? $theme_classes : '';
 $hidden_tag_attrs['data-attributes'] = isset($attributes) ?  json_encode($attributes) : '';
+if (!$acf_id && $acf_mode == 'child') {
+    $hidden_tag_attrs['data-acf-id'] = 'inherit';
+}
 // Add Hidden Tag to DOM
 echo opening_tag('div', $hidden_tag_attrs) . '</div>';
 
 // UNIQUE CLASSES
 $link = get_field('link');
-$opening_tag_attrs = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
+
+$tag_classes = $css_mode ? array('class' => $acf_name) : array('class' => $classes . ' ' . $theme_classes);
+
+$opening_tag_attrs = $tag_classes;
 $opening_tag_attrs['target'] = $link['target'] ? $link['target'] : '_self';
 $opening_tag_attrs['href'] = $link['url'] ? $link['url'] : '';
 
@@ -103,6 +126,6 @@ if ($link) {
         <php $link_target = $link && $link['target'] ? $link['target'] : '_self';?>
         <php $link_url = $link && $link['url'] ? $link['url'] : '';?>
         <php $link_title = $link && $link['title'] ? $link['title'] : '';?>        
-        <php echo '<a href="' . $link_url . '" target="'.$link_target.'" class="<?= $classes ?>">'.$link_title.'</a>'; ?>-->
+        <php echo '<a href="' . $link_url . '" target="'.$link_target.'" class="<?= implode(' ', $tag_classes); ?>">'.$link_title.'</a>'; ?>-->
 <? }
 }

@@ -21,7 +21,7 @@ $id = isset($block['anchor']) ? $block['anchor'] : $blockName . '-' . $block['id
 // This ID will only be the same if the block's settings are identical to another block. This would be a great way to de-dupe ACF fields if you had a repeater block for instance.  
 
 // ALLOWED ACF BLOCKS
-$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group', 'acf/nkg-link', 'acf/nkg-code');
+$allowed_blocks = array('acf/nkg-image', 'acf/nkg-textarea', 'acf/nkg-group', 'acf/nkg-link', 'acf/nkg-code', 'core/block');
 
 
 // ACF FIELDS SETUP
@@ -335,7 +335,7 @@ if (!$dev && $acf_mode == 'parent') : ?>
 
     <h4>Block: <?php echo $acf_name; ?>.php</h4>
     <hr>
-    <pre data-name="<?php echo $acf_name; ?>">
+    <pre class="nkg-block-code" data-name="<?php echo $acf_name; ?>">
         </pre>
 <?php endif;
 
